@@ -1,5 +1,6 @@
 package com.cartoonhero.source.actors.p2p
 
+import android.Manifest
 import android.content.ComponentName
 import android.content.Context
 import android.content.Context.BIND_AUTO_CREATE
@@ -8,6 +9,7 @@ import android.content.ServiceConnection
 import android.net.wifi.p2p.WifiP2pDevice
 import android.os.IBinder
 import com.cartoonhero.source.actormodel.Actor
+import com.cartoonhero.source.actors.Conservator
 import kotlinx.coroutines.*
 
 @ExperimentalCoroutinesApi
@@ -22,12 +24,16 @@ class PeerHost: Actor() {
         intent.setClass(context,P2PHostService::class.java)
         context.bindService(intent,connection,BIND_AUTO_CREATE)
     }
-    private fun beCheckPermission(sender: Actor, complete: (Boolean) -> Unit) {
-//        hostService.checkPermission {
-//            sender.send {
-//                complete(it)
-//            }
-//        }
+    private fun beCheckPermission(
+        sender: Actor,context: Context,
+        complete: (Boolean) -> Unit) {
+        Conservator().toBeCheckPermission(this,context,
+            Manifest.permission.ACCESS_FINE_LOCATION) {
+            hostService.isPermissionGranted = it
+            sender.send {
+                complete(it)
+            }
+        }
     }
     private fun beStop(context: Context) {
         context.unbindService(connection)
@@ -73,9 +79,10 @@ class PeerHost: Actor() {
             beStart(context)
         }
     }
-    fun toBeCheckPermission(sender: Actor, complete: (Boolean) -> Unit) {
+    fun toBeCheckPermission(
+        sender: Actor,context: Context, complete: (Boolean) -> Unit) {
         send {
-            beCheckPermission(sender, complete)
+            beCheckPermission(sender, context, complete)
         }
     }
     fun toBeStop(context: Context) {
