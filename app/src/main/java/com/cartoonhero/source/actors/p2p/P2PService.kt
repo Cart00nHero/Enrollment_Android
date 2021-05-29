@@ -142,15 +142,17 @@ class P2PService : Service() {
     }
     @SuppressLint("MissingPermission")
     fun createGroup(complete: (Boolean) -> Unit) {
-        manager.createGroup(channel, object : WifiP2pManager.ActionListener {
-            override fun onSuccess() {
-                complete(true)
-            }
-            override fun onFailure(reason: Int) {
-                Log.d(TAG, "create group error:${reason}")
-                complete(false)
-            }
-        })
+        if (isPermissionGranted) {
+            manager.createGroup(channel, object : WifiP2pManager.ActionListener {
+                override fun onSuccess() {
+                    complete(true)
+                }
+                override fun onFailure(reason: Int) {
+                    Log.d(TAG, "create group error:${reason}")
+                    complete(false)
+                }
+            })
+        }
     }
     /* --------------------------------------------------------------------- */
     // MARK: - Private
@@ -231,7 +233,9 @@ class P2PService : Service() {
                     }
                     ————————————————*/
                     Log.d(TAG, "P2P peers changed")
-                    manager.requestPeers(channel, peersListener)
+                    if (isPermissionGranted) {
+                        manager.requestPeers(channel, peersListener)
+                    }
 
                 }
                 WifiP2pManager.WIFI_P2P_CONNECTION_CHANGED_ACTION -> {
