@@ -1,13 +1,11 @@
 package com.cartoonhero.source.actors.p2p
 
-import android.Manifest
 import android.annotation.SuppressLint
 import android.app.Service
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
-import android.content.pm.PackageManager
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
 import android.net.wifi.WpsInfo
@@ -16,30 +14,23 @@ import android.net.wifi.p2p.WifiP2pDevice
 import android.net.wifi.p2p.WifiP2pManager
 import android.os.*
 import android.util.Log
-import androidx.core.app.ActivityCompat
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 
-class P2PHostService : Service() {
+class P2PService : Service() {
 
     private val TAG = "P2PHostService"
     private lateinit var channel: WifiP2pManager.Channel
     private lateinit var manager: WifiP2pManager
-    val config = WifiP2pConfig()
     private lateinit var receiver: WifiDirectReceiver
     private var discoverPeersEvent: ((List<WifiP2pDevice>) -> Unit)? = null
-    private var isPermissionGranted = false
+    var isPermissionGranted = false
     private var isWifiP2pEnabled = false
 
-
-    inner class ServiceBinder : Binder() {
-        val hostService: P2PHostService
-            get() = this@P2PHostService
-    }
-
-    override fun onBind(intent: Intent?): IBinder {
+    override fun onBind(intent: Intent): IBinder {
         return ServiceBinder()
+    }
+    inner class ServiceBinder : Binder() {
+        val service: P2PService
+            get() = this@P2PService
     }
 
     override fun onCreate() {
@@ -52,17 +43,12 @@ class P2PHostService : Service() {
         Log.i(TAG, "Service onCreate() is called")
     }
 
-    override fun onStartCommand(intent: Intent, flags: Int, startId: Int): Int {
-        Log.i(TAG, "Service onStartCommand() is called")
-        return Service.START_STICKY
-    }
-
     override fun onDestroy() {
         super.onDestroy()
         unregisterReceiver(receiver)
     }
 
-    fun registerHost() {
+    fun buildConnection() {
         val intentFilter = IntentFilter()
         // Indicates a change in the Wi-Fi P2P status.
         intentFilter.addAction(WifiP2pManager.WIFI_P2P_STATE_CHANGED_ACTION)
@@ -81,30 +67,6 @@ class P2PHostService : Service() {
 
         receiver = WifiDirectReceiver()
         registerReceiver(receiver, intentFilter)
-
-    }
-
-    fun checkPermission(context: Context,complete: (Boolean) -> Unit) {
-        CoroutineScope(Dispatchers.Main).launch {
-            if (ActivityCompat.checkSelfPermission(
-                    context,
-                    Manifest.permission.ACCESS_FINE_LOCATION
-                ) != PackageManager.PERMISSION_GRANTED
-            ) {
-                // TODO: Consider calling
-                //    ActivityCompat#requestPermissions
-                // here to request the missing permissions, and then overriding
-                //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-                //                                          int[] grantResults)
-                // to handle the case where the user grants the permission. See the documentation
-                // for ActivityCompat#requestPermissions for more details.
-                isPermissionGranted = false
-                complete(false)
-                return@launch
-            }
-            isPermissionGranted = true
-            complete(true)
-        }
     }
 
     @SuppressLint("MissingPermission")
@@ -159,16 +121,15 @@ class P2PHostService : Service() {
                 })
         }
     }
-    fun disconnectPeer(peer: WifiP2pDevice, complete: (Boolean) -> Unit) {
+    fun disconnect(complete: (Boolean) -> Unit) {
         manager.cancelConnect(channel, object : WifiP2pManager.ActionListener {
             override fun onSuccess() {
-                TODO("Not yet implemented")
+                complete(true)
             }
 
             override fun onFailure(reason: Int) {
-                TODO("Not yet implemented")
+                complete(false)
             }
-
         })
     }
     @SuppressLint("MissingPermission")
@@ -181,15 +142,17 @@ class P2PHostService : Service() {
     }
     @SuppressLint("MissingPermission")
     fun createGroup(complete: (Boolean) -> Unit) {
-        manager.createGroup(channel, object : WifiP2pManager.ActionListener {
-            override fun onSuccess() {
-                complete(true)
-            }
-            override fun onFailure(reason: Int) {
-                Log.d(TAG, "create group error:${reason}")
-                complete(false)
-            }
-        })
+        if (isPermissionGranted) {
+            manager.createGroup(channel, object : WifiP2pManager.ActionListener {
+                override fun onSuccess() {
+                    complete(true)
+                }
+                override fun onFailure(reason: Int) {
+                    Log.d(TAG, "create group error:${reason}")
+                    complete(false)
+                }
+            })
+        }
     }
     /* --------------------------------------------------------------------- */
     // MARK: - Private
@@ -270,7 +233,9 @@ class P2PHostService : Service() {
                     }
                     ————————————————*/
                     Log.d(TAG, "P2P peers changed")
-                    manager.requestPeers(channel, peersListener)
+                    if (isPermissionGranted) {
+                        manager.requestPeers(channel, peersListener)
+                    }
 
                 }
                 WifiP2pManager.WIFI_P2P_CONNECTION_CHANGED_ACTION -> {
@@ -294,5 +259,4 @@ class P2PHostService : Service() {
             }
         }
     }
-
 }

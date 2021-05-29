@@ -1,5 +1,6 @@
 package com.cartoonhero.source.actors.p2p
 
+import android.Manifest
 import android.content.ComponentName
 import android.content.Context
 import android.content.Context.BIND_AUTO_CREATE
@@ -8,33 +9,43 @@ import android.content.ServiceConnection
 import android.net.wifi.p2p.WifiP2pDevice
 import android.os.IBinder
 import com.cartoonhero.source.actormodel.Actor
+import com.cartoonhero.source.actors.Conservator
 import kotlinx.coroutines.*
 
 @ExperimentalCoroutinesApi
 @ObsoleteCoroutinesApi
-class PeerHost: Actor() {
+class PeerHost(context: Context): Actor() {
 
-    private val hostService = P2PHostService()
+    private var hostService: P2PService? = null
     private val peers = mutableListOf<WifiP2pDevice>()
+    private val mContext: Context = context
+    private var serviceBoundEvent: (() -> Unit)? = null
 
-    private fun beStart(context: Context) {
-        val intent = Intent()
-        intent.setClass(context,P2PHostService::class.java)
-        context.bindService(intent,connection,BIND_AUTO_CREATE)
+    private fun beBuildConnection(
+        sender: Actor,complete: (Boolean) -> Unit) {
+        Conservator().toBeCheckPermission(
+            this,mContext,Manifest.permission.ACCESS_FINE_LOCATION) {
+            if (it) {
+                bindP2PService()
+                serviceBoundEvent = {
+                    hostService?.isPermissionGranted = it
+                    hostService?.buildConnection()
+                }
+                return@toBeCheckPermission
+            }
+            sender.send {
+                complete(it)
+            }
+        }
     }
-    private fun beCheckPermission(sender: Actor, complete: (Boolean) -> Unit) {
-//        hostService.checkPermission {
-//            sender.send {
-//                complete(it)
-//            }
-//        }
+
+    private fun beDestroyConnection() {
+        unbindP2PService()
     }
-    private fun beStop(context: Context) {
-        context.unbindService(connection)
-    }
+
     private fun beDiscovering(
         sender: Actor, complete: (List<WifiP2pDevice>) -> Unit) {
-        hostService.discoverPeers { newPeers ->
+        hostService?.discoverPeers { newPeers ->
             peers.clear()
             peers.addAll(newPeers)
             sender.send {
@@ -45,7 +56,7 @@ class PeerHost: Actor() {
     private fun beStopDiscovering(
         sender: Actor,complete: ((Boolean) -> Unit)?) {
         if (complete != null) {
-            hostService.stopDiscoverPeers {
+            hostService?.stopDiscoverPeers {
                 sender.send {
                     complete(it)
                 }
@@ -53,34 +64,31 @@ class PeerHost: Actor() {
         }
     }
     private fun beCreateGroup(sender: Actor,complete: (Boolean) -> Unit) {
-        hostService.createGroup {
+        hostService?.createGroup {
             sender.send {
                 complete(it)
             }
         }
     }
     private fun beAskGroupPassphrase(sender: Actor,complete: (String) -> Unit) {
-        hostService.requestGroupInfo {
+        hostService?.requestGroupInfo {
             sender.send {
                 complete(it)
             }
         }
     }
+
     /* --------------------------------------------------------------------- */
     // MARK: - Portal Gate
-    fun toBeStart(context: Context) {
+    fun toBeBuildConnection(
+        sender: Actor,complete: (Boolean) -> Unit) {
         send {
-            beStart(context)
+            beBuildConnection(sender, complete)
         }
     }
-    fun toBeCheckPermission(sender: Actor, complete: (Boolean) -> Unit) {
+    fun toBeDestroyConnection() {
         send {
-            beCheckPermission(sender, complete)
-        }
-    }
-    fun toBeStop(context: Context) {
-        send {
-            beStop(context)
+            beDestroyConnection()
         }
     }
     fun toBeDiscovering(
@@ -101,19 +109,26 @@ class PeerHost: Actor() {
             beAskGroupPassphrase(sender, complete)
         }
     }
-    fun tobeCreateGroup(sender: Actor,complete: (Boolean) -> Unit) {
+    fun toBeCreateGroup(sender: Actor,complete: (Boolean) -> Unit) {
         send {
             beCreateGroup(sender, complete)
         }
     }
     /* --------------------------------------------------------------------- */
     // MARK: - Private
-    @Suppress("UNREACHABLE_CODE")
+    private fun bindP2PService() {
+        val intent = Intent()
+        intent.setClass(mContext,P2PService::class.java)
+        mContext.bindService(intent,connection,BIND_AUTO_CREATE)
+    }
+    private fun unbindP2PService() {
+        mContext.unbindService(connection)
+    }
     private val connection: ServiceConnection = object : ServiceConnection {
         override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
-            TODO("Not yet implemented")
-            val binder: P2PHostService.ServiceBinder = service as P2PHostService.ServiceBinder
-            hostService = binder.hostService
+            val binder: P2PService.ServiceBinder = service as P2PService.ServiceBinder
+            hostService = binder.service
+            serviceBoundEvent?.let { it() }
         }
         override fun onServiceDisconnected(name: ComponentName?) {
         }
