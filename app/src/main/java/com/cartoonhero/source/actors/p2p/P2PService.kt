@@ -15,7 +15,7 @@ import android.net.wifi.p2p.WifiP2pManager
 import android.os.*
 import android.util.Log
 
-class P2PHostService : Service() {
+class P2PService : Service() {
 
     private val TAG = "P2PHostService"
     private lateinit var channel: WifiP2pManager.Channel
@@ -25,14 +25,12 @@ class P2PHostService : Service() {
     var isPermissionGranted = false
     private var isWifiP2pEnabled = false
 
-
-    inner class ServiceBinder : Binder() {
-        val hostService: P2PHostService
-            get() = this@P2PHostService
-    }
-
-    override fun onBind(intent: Intent?): IBinder {
+    override fun onBind(intent: Intent): IBinder {
         return ServiceBinder()
+    }
+    inner class ServiceBinder : Binder() {
+        val service: P2PService
+            get() = this@P2PService
     }
 
     override fun onCreate() {
@@ -45,17 +43,12 @@ class P2PHostService : Service() {
         Log.i(TAG, "Service onCreate() is called")
     }
 
-    override fun onStartCommand(intent: Intent, flags: Int, startId: Int): Int {
-        Log.i(TAG, "Service onStartCommand() is called")
-        return START_STICKY
-    }
-
     override fun onDestroy() {
         super.onDestroy()
         unregisterReceiver(receiver)
     }
 
-    fun registerHost() {
+    fun buildConnection() {
         val intentFilter = IntentFilter()
         // Indicates a change in the Wi-Fi P2P status.
         intentFilter.addAction(WifiP2pManager.WIFI_P2P_STATE_CHANGED_ACTION)
@@ -74,7 +67,6 @@ class P2PHostService : Service() {
 
         receiver = WifiDirectReceiver()
         registerReceiver(receiver, intentFilter)
-
     }
 
     @SuppressLint("MissingPermission")
@@ -263,5 +255,4 @@ class P2PHostService : Service() {
             }
         }
     }
-
 }
