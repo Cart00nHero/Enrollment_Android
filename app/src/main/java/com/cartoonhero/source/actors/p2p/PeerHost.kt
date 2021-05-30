@@ -24,17 +24,22 @@ class PeerHost(context: Context): Actor() {
     private fun beBuildConnection(
         sender: Actor,complete: (Boolean) -> Unit) {
         Conservator().toBeCheckPermission(
-            this,mContext,Manifest.permission.ACCESS_FINE_LOCATION) {
-            if (it) {
+            this,mContext,
+            Manifest.permission.ACCESS_FINE_LOCATION) { granted ->
+            if (granted) {
                 bindP2PService()
                 serviceBoundEvent = {
-                    hostService?.isPermissionGranted = it
-                    hostService?.buildConnection()
+                    hostService?.isPermissionGranted = granted
+                    hostService?.buildConnection {
+                        sender.send {
+                            complete(it)
+                        }
+                    }
                 }
                 return@toBeCheckPermission
             }
             sender.send {
-                complete(it)
+                complete(false)
             }
         }
     }
