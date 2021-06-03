@@ -1,22 +1,14 @@
 package com.cartoonhero.source.enrollment_android
 
 import android.os.Bundle
-import androidx.navigation.findNavController
-import androidx.navigation.ui.AppBarConfiguration
-import androidx.navigation.ui.navigateUp
 import android.view.Menu
 import android.view.MenuItem
 import com.cartoonhero.source.enrollment_android.scene.NavigationActivity
 import com.cartoonhero.source.enrollment_android.databinding.ActivityMainBinding
-import com.cartoonhero.source.enrollment_android.scene.qrCode.QRCodeFragment
-import com.cartoonhero.source.enrollment_android.scene.visitor.VisitorScenario
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.ObsoleteCoroutinesApi
+import com.cartoonhero.source.enrollment_android.scene.openning.OpenningFragment
 
 const val SceneBundleKey = "SCENE_BUNDLE_KEY"
 const val MainFragmentContainer = R.id.main_container
-@ObsoleteCoroutinesApi
-@ExperimentalCoroutinesApi
 class MainActivity : NavigationActivity() {
 
     private lateinit var binding: ActivityMainBinding
@@ -28,7 +20,7 @@ class MainActivity : NavigationActivity() {
         setSupportActionBar(binding.toolbar)
         val sceneName = intent.getStringExtra(SceneBundleKey)
         if (sceneName.isNullOrEmpty()) {
-            setRootFragment(QRCodeFragment(),MainFragmentContainer)
+            setRootFragment(OpenningFragment(),MainFragmentContainer)
         }
     }
 
