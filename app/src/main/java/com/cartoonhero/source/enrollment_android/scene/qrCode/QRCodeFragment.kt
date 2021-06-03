@@ -23,19 +23,23 @@ class QRCodeFragment:Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
+        savedInstanceState: Bundle?): View? {
         super.onCreateView(inflater, container, savedInstanceState)
-        return inflater.inflate(R.layout.fragment_qrcode,container,false)
+        return inflater.inflate(R.layout.fragment_qrcode,
+            container,false)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        scenario.toBeCollectBitmap {
+            qrcode_imageView.setImageBitmap(it)
+        }
         scan_button.setOnClickListener {
             openPhotoGallery()
         }
     }
-
+    /* --------------------------------------------------------------------- */
+    // MARK: - Private
     private fun openPhotoGallery() {
         val intent = Intent(Intent.ACTION_PICK,
             MediaStore.Images.Media.INTERNAL_CONTENT_URI)
@@ -53,7 +57,7 @@ class QRCodeFragment:Fragment() {
                     it
                 )
             })
-
+            scenario.toBeScanQrCodeImage(bitmap)
             qrcode_imageView.setImageURI(data?.data)
         }
     }
