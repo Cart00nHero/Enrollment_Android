@@ -5,14 +5,14 @@ import android.app.Activity
 import android.content.Context
 import com.cartoonhero.source.actormodel.Actor
 import com.cartoonhero.source.actors.Conservator
-import com.cartoonhero.source.actors.p2p.PeerHost
+import com.cartoonhero.source.actors.p2p.PeerConnector
 import kotlinx.coroutines.*
 
 @ExperimentalCoroutinesApi
 @ObsoleteCoroutinesApi
 
 class VisitorScenario: Actor() {
-    private lateinit var peerHost: PeerHost
+    private lateinit var peerConnector: PeerConnector
     private fun beCheckPermission(
         context: Context,complete: (Boolean) -> Unit) {
         Conservator().toBeCheckPermission(this,
@@ -28,8 +28,8 @@ class VisitorScenario: Actor() {
     }
     private fun beBuildP2PConnection(
         activity: Activity,complete:(Boolean) -> Unit) {
-        peerHost = PeerHost(activity)
-        peerHost.toBeBuildConnection(this) {
+        peerConnector = PeerConnector(activity)
+        peerConnector.toBeSetup(this) {
             complete(it)
         }
     }

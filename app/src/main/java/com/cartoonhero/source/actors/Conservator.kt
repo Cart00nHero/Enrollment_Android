@@ -47,6 +47,8 @@ class Conservator: Actor() {
             }
         }
     }
+    /* --------------------------------------------------------------------- */
+    // MARK: - Portal Gate
     fun toBeRequestPermission(
         activity: Activity, permissions:Array<String>) {
         send {
