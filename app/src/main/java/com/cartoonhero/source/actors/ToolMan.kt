@@ -3,6 +3,7 @@ package com.cartoonhero.source.actors
 import android.graphics.Bitmap
 import com.cartoonhero.source.actormodel.Actor
 import com.cartoonhero.source.props.inlineMethods.toBase64String
+import com.cartoonhero.source.props.inlineMethods.toBitmap
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.ObsoleteCoroutinesApi
 
@@ -52,6 +53,14 @@ class ToolMan : Actor() {
             complete(base64Bitmap)
         }
     }
+    private fun beBase64ToBitMap(
+        sender: Actor,base64Img: String,
+        complete: (Bitmap) -> Unit) {
+        val bitmap = base64Img.toBitmap()
+        sender.send {
+            bitmap?.let { complete(it) }
+        }
+    }
     /* --------------------------------------------------------------------- */
     // MARK: - Portal Gate
     fun toBeResizeBitmap(
@@ -65,6 +74,13 @@ class ToolMan : Actor() {
         sender: Actor,bitmap: Bitmap, complete: (String) -> Unit) {
         send {
             beBitmapToBase64(sender, bitmap, complete)
+        }
+    }
+    fun toBeBase64ToBitMap(
+        sender: Actor,base64Img: String,
+        complete: (Bitmap) -> Unit) {
+        send {
+            beBase64ToBitMap(sender, base64Img, complete)
         }
     }
 }

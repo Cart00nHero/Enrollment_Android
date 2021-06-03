@@ -12,7 +12,7 @@ class Courier : Actor() {
             sender: Actor, recipient: String, content: T,
             complete: (Parcel<T>) -> Unit) {
         val senderName = sender.javaClass.name
-        val parcel = Parcel<T>(senderName, content)
+        val parcel = Parcel(senderName, content)
         sender.send {
             complete(parcel)
         }
