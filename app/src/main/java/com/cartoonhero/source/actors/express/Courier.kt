@@ -30,7 +30,7 @@ class Courier : Actor() {
         LogisticsCenter.cancelExpress(recipient, parcel)
     }
 
-    // ---------------------------------------------------------------------
+    /* --------------------------------------------------------------------- */
     // MARK: - Portal Gate
     fun <T> toBeApplyExpress(
             sender: Actor, recipient: String, content: T,

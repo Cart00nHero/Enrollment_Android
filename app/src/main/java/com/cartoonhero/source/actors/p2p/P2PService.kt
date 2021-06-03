@@ -23,7 +23,7 @@ class P2PService : Service() {
     private lateinit var receiver: WifiDirectReceiver
     private var discoverPeersEvent: ((List<WifiP2pDevice>) -> Unit)? = null
     var isPermissionGranted = false
-    private var isWifiP2pEnabled = false
+    private var wifiP2PEnabledEvent: ((Boolean) -> Unit)? = null
 
     override fun onBind(intent: Intent): IBinder {
         return ServiceBinder()
@@ -48,7 +48,8 @@ class P2PService : Service() {
         unregisterReceiver(receiver)
     }
 
-    fun buildConnection() {
+    fun buildConnection(complete: (Boolean) -> Unit) {
+        wifiP2PEnabledEvent = complete
         val intentFilter = IntentFilter()
         // Indicates a change in the Wi-Fi P2P status.
         intentFilter.addAction(WifiP2pManager.WIFI_P2P_STATE_CHANGED_ACTION)
@@ -214,10 +215,13 @@ class P2PService : Service() {
                 WifiP2pManager.WIFI_P2P_STATE_CHANGED_ACTION -> {
                     // Determine if Wifi P2P mode is enabled or not, alert
                     // the Activity.
-                    val state = intent.getIntExtra(WifiP2pManager.EXTRA_WIFI_STATE, -1)
+                    var isEnable = false
+                    val state =
+                        intent.getIntExtra(WifiP2pManager.EXTRA_WIFI_STATE, -1)
                     if (state == WifiP2pManager.WIFI_P2P_STATE_ENABLED) {
-                        isWifiP2pEnabled = true
+                        isEnable = true
                     }
+                    wifiP2PEnabledEvent?.let { it(isEnable) }
                 }
                 WifiP2pManager.WIFI_P2P_PEERS_CHANGED_ACTION -> {
                     // The peer list has changed! We should probably do something about

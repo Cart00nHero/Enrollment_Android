@@ -14,27 +14,32 @@ import kotlinx.coroutines.*
 
 @ExperimentalCoroutinesApi
 @ObsoleteCoroutinesApi
-class PeerHost(context: Context): Actor() {
+class PeerConnector(context: Context): Actor() {
 
     private var hostService: P2PService? = null
     private val peers = mutableListOf<WifiP2pDevice>()
     private val mContext: Context = context
     private var serviceBoundEvent: (() -> Unit)? = null
 
-    private fun beBuildConnection(
+    private fun beSetup(
         sender: Actor,complete: (Boolean) -> Unit) {
         Conservator().toBeCheckPermission(
-            this,mContext,Manifest.permission.ACCESS_FINE_LOCATION) {
-            if (it) {
+            this,mContext,
+            Manifest.permission.ACCESS_FINE_LOCATION) { granted ->
+            if (granted) {
                 bindP2PService()
                 serviceBoundEvent = {
-                    hostService?.isPermissionGranted = it
-                    hostService?.buildConnection()
+                    hostService?.isPermissionGranted = granted
+                    hostService?.buildConnection {
+                        sender.send {
+                            complete(it)
+                        }
+                    }
                 }
                 return@toBeCheckPermission
             }
             sender.send {
-                complete(it)
+                complete(false)
             }
         }
     }
@@ -63,6 +68,17 @@ class PeerHost(context: Context): Actor() {
             }
         }
     }
+    private fun beConnectPeer(
+        sender: Actor, peer: WifiP2pDevice,
+        complete:((Boolean) -> Unit)?) {
+        hostService?.connectPeer(peer) {
+            if (complete != null) {
+                sender.send {
+                    complete(it)
+                }
+            }
+        }
+    }
     private fun beCreateGroup(sender: Actor,complete: (Boolean) -> Unit) {
         hostService?.createGroup {
             sender.send {
@@ -80,10 +96,10 @@ class PeerHost(context: Context): Actor() {
 
     /* --------------------------------------------------------------------- */
     // MARK: - Portal Gate
-    fun toBeBuildConnection(
+    fun toBeSetup(
         sender: Actor,complete: (Boolean) -> Unit) {
         send {
-            beBuildConnection(sender, complete)
+            beSetup(sender, complete)
         }
     }
     fun toBeDestroyConnection() {
@@ -104,14 +120,21 @@ class PeerHost(context: Context): Actor() {
         }
     }
 
-    fun toBeAskGroupPassphrase(sender: Actor,complete: (String) -> Unit) {
+    fun toBeConnectPeer(
+        sender: Actor, peer: WifiP2pDevice,
+        complete:((Boolean) -> Unit)?) {
         send {
-            beAskGroupPassphrase(sender, complete)
+            beConnectPeer(sender, peer, complete)
         }
     }
     fun toBeCreateGroup(sender: Actor,complete: (Boolean) -> Unit) {
         send {
             beCreateGroup(sender, complete)
+        }
+    }
+    fun toBeAskGroupPassphrase(sender: Actor,complete: (String) -> Unit) {
+        send {
+            beAskGroupPassphrase(sender, complete)
         }
     }
     /* --------------------------------------------------------------------- */

@@ -1,48 +1,34 @@
 package com.cartoonhero.source.enrollment_android
 
 import android.os.Bundle
-import android.util.Log
-import com.google.android.material.snackbar.Snackbar
-import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.navigateUp
-import androidx.navigation.ui.setupActionBarWithNavController
 import android.view.Menu
 import android.view.MenuItem
+import com.cartoonhero.source.enrollment_android.scene.NavigationActivity
 import com.cartoonhero.source.enrollment_android.databinding.ActivityMainBinding
+import com.cartoonhero.source.enrollment_android.scene.qrCode.QRCodeFragment
 import com.cartoonhero.source.enrollment_android.scene.visitor.VisitorScenario
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.ObsoleteCoroutinesApi
 
+const val SceneBundleKey = "SCENE_BUNDLE_KEY"
+const val MainFragmentContainer = R.id.main_container
 @ObsoleteCoroutinesApi
 @ExperimentalCoroutinesApi
-class MainActivity : AppCompatActivity() {
+class MainActivity : NavigationActivity() {
 
-    private lateinit var appBarConfiguration: AppBarConfiguration
     private lateinit var binding: ActivityMainBinding
-    private val scenario = VisitorScenario()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
-
         setSupportActionBar(binding.toolbar)
-
-        val navController = findNavController(R.id.nav_host_fragment_content_main)
-        appBarConfiguration = AppBarConfiguration(navController.graph)
-        setupActionBarWithNavController(navController, appBarConfiguration)
-
-        binding.fab.setOnClickListener { view ->
-            Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                    .setAction("Action", null).show()
-            scenario.toBeBuildP2PConnection(this) {
-                if (it) {
-                    Log.d("Kiss","my ass")
-                }
-            }
+        val sceneName = intent.getStringExtra(SceneBundleKey)
+        if (sceneName.isNullOrEmpty()) {
+            setRootFragment(QRCodeFragment(),MainFragmentContainer)
         }
     }
 
@@ -60,11 +46,5 @@ class MainActivity : AppCompatActivity() {
             R.id.action_settings -> true
             else -> super.onOptionsItemSelected(item)
         }
-    }
-
-    override fun onSupportNavigateUp(): Boolean {
-        val navController = findNavController(R.id.nav_host_fragment_content_main)
-        return navController.navigateUp(appBarConfiguration)
-                || super.onSupportNavigateUp()
     }
 }
