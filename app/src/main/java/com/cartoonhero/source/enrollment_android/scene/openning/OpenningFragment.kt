@@ -13,6 +13,8 @@ import com.cartoonhero.source.enrollment_android.scene.roleSelection.RoleSelecti
 import com.cartoonhero.source.enrollment_android.scene.visitedUnit.UnitFragment
 import com.cartoonhero.source.enrollment_android.scene.visitor.VisitorFragment
 import com.cartoonhero.source.props.SingletonStorage
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.ObsoleteCoroutinesApi
 
 class OpenningFragment: Fragment() {
     override fun onCreateView(
@@ -24,6 +26,8 @@ class OpenningFragment: Fragment() {
             R.layout.fragment_openning,container,false)
     }
 
+    @ExperimentalCoroutinesApi
+    @ObsoleteCoroutinesApi
     override fun onStart() {
         super.onStart()
         val sharePrefs = context?.getSharedPreferences(

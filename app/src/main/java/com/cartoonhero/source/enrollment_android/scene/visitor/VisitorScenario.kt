@@ -35,6 +35,12 @@ class VisitorScenario: Actor() {
     }
     /* --------------------------------------------------------------------- */
     // MARK: - Portal Gate
+    fun toBeCheckPermission(
+        context: Context,complete: (Boolean) -> Unit) {
+        send {
+            beCheckPermission(context, complete)
+        }
+    }
     fun toBeRequestPermission(activity: Activity) {
         send {
             beRequestPermission(activity)

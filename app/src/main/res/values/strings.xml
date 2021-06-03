@@ -11,4 +11,5 @@
     <string name="hello_second_fragment">Hello second fragment. Arg: %1$s</string>
     <string name="i_am_a_visitor">I am a visitor</string>
     <string name="i_am_visited_unit">I am a visited unit</string>
+    <string name="role_changed">Role changed</string>
 </resources>

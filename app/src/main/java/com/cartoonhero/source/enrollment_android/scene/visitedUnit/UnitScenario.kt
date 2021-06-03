@@ -1,8 +1,11 @@
 package com.cartoonhero.source.enrollment_android.scene.visitedUnit
 
+import android.Manifest
+import android.app.Activity
 import android.content.Context
 import android.net.wifi.p2p.WifiP2pDevice
 import com.cartoonhero.source.actormodel.Actor
+import com.cartoonhero.source.actors.Conservator
 import com.cartoonhero.source.actors.p2p.PeerCommunicator
 import com.cartoonhero.source.actors.p2p.PeerConnector
 import kotlinx.coroutines.*
@@ -13,6 +16,20 @@ class UnitScenario: Actor() {
     private var connector:PeerConnector? = null
     private val communicator = PeerCommunicator()
     private val peerList: HashSet<WifiP2pDevice> = hashSetOf()
+
+    private fun beCheckPermission(
+        context: Context,complete: (Boolean) -> Unit) {
+        Conservator().toBeCheckPermission(this,
+            context, Manifest.permission.ACCESS_FINE_LOCATION) {
+            CoroutineScope(Dispatchers.Main).launch {
+                complete(it)
+            }
+        }
+    }
+    private fun beRequestPermission(activity: Activity) {
+        val permission = arrayOf(Manifest.permission.ACCESS_FINE_LOCATION)
+        Conservator().toBeRequestPermission(activity,permission)
+    }
 
     private fun beSetUpConnection(
         context: Context, complete:(Boolean) -> Unit) {
@@ -43,6 +60,17 @@ class UnitScenario: Actor() {
     }
     /* --------------------------------------------------------------------- */
     // MARK: - Portal Gate
+    fun toBeCheckPermission(
+        context: Context,complete: (Boolean) -> Unit) {
+        send {
+            beCheckPermission(context, complete)
+        }
+    }
+    fun toBeRequestPermission(activity: Activity) {
+        send {
+            beRequestPermission(activity)
+        }
+    }
     fun toBeSetUpConnection(
         context: Context, complete:(Boolean) -> Unit) {
         send {
