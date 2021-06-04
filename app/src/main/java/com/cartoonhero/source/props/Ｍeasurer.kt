@@ -1,4 +1,4 @@
-package com.cartoonHero.source.props
+package com.cartoonhero.source.props
 
 import android.app.Activity
 import android.content.Context
