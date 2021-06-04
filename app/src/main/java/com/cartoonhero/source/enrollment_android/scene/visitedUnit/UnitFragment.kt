@@ -7,7 +7,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import com.cartoonhero.source.enrollment_android.R
-import com.cartoonhero.source.props.SingletonStorage
+import com.cartoonhero.source.props.Singleton
 import com.cartoonhero.source.props.inlineMethods.applyEdit
 import kotlinx.android.synthetic.main.fragment_visitor.*
 
@@ -23,7 +23,7 @@ class UnitFragment: Fragment() {
         super.onViewCreated(view, savedInstanceState)
         button_change_role.setOnClickListener {
             val sharePrefs = context?.getSharedPreferences(
-                SingletonStorage.sharePrefsKey, Context.MODE_PRIVATE)
+                Singleton.sharePrefsKey, Context.MODE_PRIVATE)
             sharePrefs?.applyEdit {
                 remove("role_of_user")
             }

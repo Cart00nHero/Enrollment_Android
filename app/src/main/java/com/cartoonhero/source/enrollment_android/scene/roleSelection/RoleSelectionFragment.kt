@@ -9,7 +9,7 @@ import androidx.fragment.app.Fragment
 import com.cartoonhero.source.enrollment_android.MainActivity
 import com.cartoonhero.source.enrollment_android.MainFragmentContainer
 import com.cartoonhero.source.enrollment_android.R
-import com.cartoonhero.source.props.SingletonStorage
+import com.cartoonhero.source.props.Singleton
 import com.cartoonhero.source.props.inlineMethods.applyEdit
 import kotlinx.android.synthetic.main.fragment_role_selection.*
 
@@ -28,7 +28,7 @@ class RoleSelectionFragment: Fragment() {
         super.onViewCreated(view, savedInstanceState)
         button_visitor.setOnClickListener {
             val sharePrefs = context?.getSharedPreferences(
-                SingletonStorage.sharePrefsKey,Context.MODE_PRIVATE)
+                Singleton.sharePrefsKey,Context.MODE_PRIVATE)
             sharePrefs?.applyEdit {
                 putString("role_of_user","Visitor")
             }
@@ -36,7 +36,7 @@ class RoleSelectionFragment: Fragment() {
         }
         button_unit.setOnClickListener {
             val sharePrefs = context?.getSharedPreferences(
-                SingletonStorage.sharePrefsKey,Context.MODE_PRIVATE)
+                Singleton.sharePrefsKey,Context.MODE_PRIVATE)
             sharePrefs?.applyEdit {
                 putString("role_of_user","Visited_Unit")
             }

@@ -12,7 +12,7 @@ import com.cartoonhero.source.enrollment_android.R
 import com.cartoonhero.source.enrollment_android.scene.roleSelection.RoleSelectionFragment
 import com.cartoonhero.source.enrollment_android.scene.visitedUnit.UnitFragment
 import com.cartoonhero.source.enrollment_android.scene.visitor.VisitorFragment
-import com.cartoonhero.source.props.SingletonStorage
+import com.cartoonhero.source.props.Singleton
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.ObsoleteCoroutinesApi
 
@@ -31,7 +31,7 @@ class OpenningFragment: Fragment() {
     override fun onStart() {
         super.onStart()
         val sharePrefs = context?.getSharedPreferences(
-            SingletonStorage.sharePrefsKey, Context.MODE_PRIVATE)
+            Singleton.sharePrefsKey, Context.MODE_PRIVATE)
         when(sharePrefs?.getString("role_of_user","")) {
             "" -> {
                 (activity as MainActivity).goForward(
