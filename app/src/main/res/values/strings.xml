@@ -28,4 +28,5 @@
     </string>
     <string name="edit">Edit</string>
     <string name="save">Save</string>
+    <string name="get_visited_unit_info">Get visited unit information</string>
 </resources>
