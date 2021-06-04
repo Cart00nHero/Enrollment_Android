@@ -42,7 +42,8 @@ class VisitorScenario : Actor() {
         redux.unSubscribe()
     }
 
-    private fun beGetDataSource(context: Context, complete: (List<ListEditItem>) -> Unit) {
+    private fun beGetDataSource(
+        context: Context, complete: (List<ListEditItem>) -> Unit) {
         sourceSubscriber = complete
         val sharePrefs =
             context.getSharedPreferences(Singleton.sharePrefsKey, Context.MODE_PRIVATE)

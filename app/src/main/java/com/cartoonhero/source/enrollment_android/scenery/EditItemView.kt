@@ -44,6 +44,7 @@ class EditItemView<T> @JvmOverloads constructor(
             is ListEditItem -> {
                 this.item_titleText.text = data.title
                 if (isEditor) {
+                    item_copyButton.visibility = View.GONE
                     val editText = EditText(context)
                     setMatchConstraints(editText)
                     editText.layoutParams.width = 0
@@ -72,6 +73,7 @@ class EditItemView<T> @JvmOverloads constructor(
 
                     })
                 } else {
+                    item_copyButton.visibility = View.VISIBLE
                     val textView = TextView(context)
                     setMatchConstraints(textView)
                     textView.layoutParams.width = 0

@@ -14,6 +14,7 @@ import com.cartoonhero.source.enrollment_android.scenery.EditItemView
 import com.cartoonhero.source.props.Singleton
 import com.cartoonhero.source.props.entities.ListEditItem
 import com.cartoonhero.source.props.inlineMethods.applyEdit
+import com.cartoonhero.source.props.inlineMethods.hideKeyboard
 import com.cartoonhero.source.props.localized
 import kotlinx.android.synthetic.main.fragment_visitor.*
 import kotlinx.coroutines.*
@@ -67,6 +68,7 @@ class VisitorFragment: Fragment() {
                     isEditState = false
                     it.text = localized(requireContext(),R.string.edit)
                     scenario.toBeSaveVisitor(requireContext())
+                    it.hideKeyboard()
                 }
             }
         }
