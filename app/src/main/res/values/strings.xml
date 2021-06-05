@@ -18,7 +18,7 @@
         Please enter your phone number
     </string>
     <string name="tel">Tel</string>
-    <string name="other_info">Other info</string>
+    <string name="info">Info</string>
     <string name="please_fill_in_what_you_want_to_prefill">
         Please fill in what you want to pre-fill
     </string>
@@ -29,4 +29,7 @@
     <string name="edit">Edit</string>
     <string name="save">Save</string>
     <string name="get_visited_unit_info">Get visited unit information</string>
+    <string name="send_info">Send information</string>
+    <string name="code">Code</string>
+    <string name="form_url">Form url</string>
 </resources>
