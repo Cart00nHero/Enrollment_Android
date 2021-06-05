@@ -23,7 +23,7 @@ import kotlinx.coroutines.*
 @ExperimentalCoroutinesApi
 class VisitorFragment: Fragment() {
     private val scenario = VisitorScenario()
-    var editDataSource:List<ListEditItem> = listOf()
+    private var editDataSource:List<ListEditItem> = listOf()
     private var isEditState = false
     private val concatAdapter =
         ConcatAdapter(RecyclerAdapter(),RecyclerAdapter())
@@ -95,8 +95,7 @@ class VisitorFragment: Fragment() {
         super.onDestroy()
         scenario.toBeDestroyP2P()
     }
-    private inner class RecyclerAdapter :
-        RecyclerView.Adapter<RecyclerAdapter.ViewHolder>() {
+    private inner class RecyclerAdapter : RecyclerView.Adapter<RecyclerAdapter.ViewHolder>() {
         override fun onCreateViewHolder(
             parent: ViewGroup, viewType: Int): ViewHolder {
             val itemView = LayoutInflater.from(parent.context)
