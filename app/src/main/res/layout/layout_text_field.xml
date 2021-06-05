@@ -6,27 +6,36 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <com.google.android.material.textfield.TextInputEditText
-        android:id="@+id/text_field"
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/field_input_layout"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:maxLines="1"
+        android:background="#00000000"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/text_field"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:lines="1"
+            android:inputType="text"
+            android:background="#00000000" />
+    </com.google.android.material.textfield.TextInputLayout>
 
     <ImageButton
         android:id="@+id/field_clear_button"
         android:layout_width="0dp"
         android:layout_height="0dp"
+        android:background="#00000000"
         android:scaleType="center"
         android:visibility="gone"
-        android:background="#00000000"
+        app:layout_constraintBottom_toBottomOf="@+id/field_input_layout"
         app:layout_constraintDimensionRatio="1:1"
-        app:layout_constraintBottom_toBottomOf="@+id/text_field"
-        app:layout_constraintEnd_toEndOf="@+id/text_field"
-        app:layout_constraintTop_toTopOf="@+id/text_field"
+        app:layout_constraintEnd_toEndOf="@+id/field_input_layout"
+        app:layout_constraintTop_toTopOf="@+id/field_input_layout"
         app:srcCompat="@android:drawable/ic_delete"
         tools:ignore="ContentDescription" />
 </androidx.constraintlayout.widget.ConstraintLayout>

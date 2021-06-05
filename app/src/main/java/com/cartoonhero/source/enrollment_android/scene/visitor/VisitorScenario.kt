@@ -29,11 +29,11 @@ class VisitorScenario : Actor() {
     private lateinit var peerConnector: PeerConnector
     private var visitor: VisitorInfo = VisitorInfo()
     private val redux = ReduxFactory()
-    var reduxStateEvent: ((Action) -> Unit)? = null
-    var sourceSubscriber: ((List<ListEditItem>) -> Unit)? = null
+    private var reduxStateEvent: ((Action) -> Unit)? = null
+    private var sourceSubscriber: ((List<ListEditItem>) -> Unit)? = null
+
     private fun beSubscribeRedux(
-        subscriber: (Action) -> Unit
-    ) {
+        subscriber: (Action) -> Unit) {
         reduxStateEvent = subscriber
         redux.subscribeRedux(stateSubscriber)
     }
@@ -99,8 +99,7 @@ class VisitorScenario : Actor() {
     /* --------------------------------------------------------------------- */
     // MARK: - Portal Gate
     fun toBeSubscribeRedux(
-        subscriber: (Action) -> Unit
-    ) {
+        subscriber: (Action) -> Unit) {
         send {
             beSubscribeRedux(subscriber)
         }
@@ -113,16 +112,14 @@ class VisitorScenario : Actor() {
     }
 
     fun toBeGetDataSource(
-        context: Context, complete: (List<ListEditItem>) -> Unit
-    ) {
+        context: Context, complete: (List<ListEditItem>) -> Unit) {
         send {
             beGetDataSource(context, complete)
         }
     }
 
     fun toBeCheckPermission(
-        context: Context, complete: (Boolean) -> Unit
-    ) {
+        context: Context, complete: (Boolean) -> Unit) {
         send {
             beCheckPermission(context, complete)
         }
@@ -135,8 +132,7 @@ class VisitorScenario : Actor() {
     }
 
     fun toBeBuildP2PConnection(
-        activity: Activity, complete: (Boolean) -> Unit
-    ) {
+        activity: Activity, complete: (Boolean) -> Unit) {
         send {
             beBuildP2PConnection(activity, complete)
         }
@@ -171,7 +167,7 @@ class VisitorScenario : Actor() {
                 content = visitor.tel
             ),
             ListEditItem(
-                title = "${localized(context, R.string.other_info)}:",
+                title = "${localized(context, R.string.info)}:",
                 placeholder = localized(
                     context, R.string.please_fill_in_what_you_want_to_prefill
                 ),

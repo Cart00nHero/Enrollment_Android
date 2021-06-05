@@ -24,37 +24,47 @@ import kotlinx.coroutines.launch
 import java.util.*
 import kotlin.concurrent.schedule
 
-class EditItemView<T> @JvmOverloads constructor(
+class EditItemView @JvmOverloads constructor(
     context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
 ) : ConstraintLayout(context, attrs, defStyleAttr) {
 
     var currentContent = ""
+
     init {
-        inflate(context,R.layout.layout_edit_listitem,this)
+        inflate(context, R.layout.layout_edit_listitem, this)
+    }
+
+    fun disableCopyButton() {
+        this.item_copyButton.visibility = View.GONE
     }
     @SuppressLint("SetTextI18n")
     inline fun <reified T> bindItemData(data: T, isEditor: Boolean) {
-        when(data) {
+        when (data) {
             is ListEditItem -> {
                 this.item_titleText.text = data.title
                 if (isEditor) {
-                    item_contentText.visibility = View.GONE
-                    item_textField.visibility = View.VISIBLE
-                    item_textField.text_field.hint = data.placeholder
-                    item_textField.text_field.setText(data.content)
-                    item_textField.text_field.imeOptions = EditorInfo.IME_ACTION_DONE
-                    item_textField.text_field.setTextSize(
-                        TypedValue.COMPLEX_UNIT_SP,14.0F)
-                    item_textField.newTextSubscriber = {
-                        appStore.dispatch(InputValueChangedAction(this.tag as Int,it))
+                    this.item_contentText.visibility = View.GONE
+                    this.item_textField.visibility = View.VISIBLE
+                    this.item_textField.text_field.hint = data.placeholder
+                    this.item_textField.text_field.setText(data.content)
+                    this.item_textField.text_field.inputType = data.keyboardType
+                    this.item_textField.text_field.imeOptions =
+                        EditorInfo.IME_ACTION_DONE
+                    this.item_textField.text_field.setTextSize(
+                        TypedValue.COMPLEX_UNIT_SP, 14.0F
+                    )
+                    this.item_textField.newTextSubscriber = {
+                        appStore.dispatch(InputValueChangedAction(this.tag as Int, it))
                     }
                 } else {
-                    item_textField.visibility = View.GONE
-                    item_contentText.visibility = View.VISIBLE
-                    item_contentText.text = data.content
+                    this.item_textField.visibility = View.GONE
+                    this.item_contentText.visibility = View.VISIBLE
+                    this.item_contentText.text = data.content
                     currentContent = data.content
-                    item_contentText.setTextSize(TypedValue.COMPLEX_UNIT_SP,14.0F)
-                    item_contentText.gravity = Gravity.CENTER_VERTICAL
+                    this.item_contentText.setTextSize(
+                        TypedValue.COMPLEX_UNIT_SP, 14.0F
+                    )
+                    this.item_contentText.gravity = Gravity.CENTER_VERTICAL
                 }
             }
         }

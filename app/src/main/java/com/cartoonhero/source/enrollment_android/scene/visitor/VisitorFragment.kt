@@ -15,8 +15,10 @@ import com.cartoonhero.source.props.Singleton
 import com.cartoonhero.source.props.entities.ListEditItem
 import com.cartoonhero.source.props.inlineMethods.applyEdit
 import com.cartoonhero.source.props.inlineMethods.hideKeyboard
+import com.cartoonhero.source.props.inlineMethods.setMaxLength
 import com.cartoonhero.source.props.localized
 import kotlinx.android.synthetic.main.fragment_visitor.*
+import kotlinx.android.synthetic.main.layout_text_field.view.*
 import kotlinx.coroutines.*
 
 @ObsoleteCoroutinesApi
@@ -43,7 +45,8 @@ class VisitorFragment: Fragment() {
             scenario.toBeGetDataSource(it) { source ->
                 editDataSource = source
                 CoroutineScope(Dispatchers.Main).launch {
-                    editor_list.adapter = concatAdapter.adapters[0]
+                    this@VisitorFragment.editor_list.adapter =
+                        concatAdapter.adapters[0]
                 }
             }
             scenario.toBeCheckPermission(it) { granted ->
@@ -56,19 +59,19 @@ class VisitorFragment: Fragment() {
                     }
                 }
             }
-        this.button_edit.setOnClickListener {
-            when((it as Button).text) {
+        this.button_edit.setOnClickListener { btn ->
+            when((btn as Button).text) {
                 localized(requireContext(),R.string.edit) -> {
                     isEditState = true
                     concatAdapter.adapters[0].notifyDataSetChanged()
-                    it.text =
+                    btn.text =
                         localized(requireContext(),R.string.save)
                 }
                 localized(requireContext(),R.string.save) -> {
                     isEditState = false
-                    it.text = localized(requireContext(),R.string.edit)
-                    scenario.toBeSaveVisitor(requireContext())
-                    it.hideKeyboard()
+                    context?.let { scenario.toBeSaveVisitor(it) }
+                    btn.text = localized(requireContext(),R.string.edit)
+                    btn.hideKeyboard()
                 }
             }
         }
@@ -111,11 +114,12 @@ class VisitorFragment: Fragment() {
                 (editor_list.measuredHeight/3)
             holder.itemView.tag = position
             holder.bindData(
-                holder.itemView as EditItemView<*>,position)
+                holder.itemView as EditItemView,position)
         }
         inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-            fun bindData(itemView: EditItemView<*>, position: Int) {
+            fun bindData(itemView: EditItemView, position: Int) {
                 val data = editDataSource[position]
+                itemView.text_field.setMaxLength(25)
                 itemView.bindItemData(data,isEditState)
             }
         }

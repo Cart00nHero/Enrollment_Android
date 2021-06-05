@@ -12,3 +12,9 @@ data class VisitorInfo(
     var tel: String = "",
     var others: String = ""
 )
+data class VisitedUnit(
+    var code:String = "",
+    var name: String = "",
+    var cloudForm: String = "",
+    var qrB64Image: String = ""
+)
