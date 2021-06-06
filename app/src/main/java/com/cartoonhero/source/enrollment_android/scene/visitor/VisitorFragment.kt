@@ -1,6 +1,5 @@
 package com.cartoonhero.source.enrollment_android.scene.visitor
 
-import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -11,9 +10,7 @@ import androidx.recyclerview.widget.ConcatAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.cartoonhero.source.enrollment_android.R
 import com.cartoonhero.source.enrollment_android.scenery.EditItemView
-import com.cartoonhero.source.props.Singleton
 import com.cartoonhero.source.props.entities.ListEditItem
-import com.cartoonhero.source.props.inlineMethods.applyEdit
 import com.cartoonhero.source.props.inlineMethods.hideKeyboard
 import com.cartoonhero.source.props.inlineMethods.setMaxLength
 import com.cartoonhero.source.props.localized
