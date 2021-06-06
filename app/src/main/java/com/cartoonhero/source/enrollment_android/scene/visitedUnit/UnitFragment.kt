@@ -9,6 +9,7 @@ import android.widget.Button
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.RecyclerView
 import com.cartoonhero.source.enrollment_android.R
+import com.cartoonhero.source.enrollment_android.scene.visitor.VisitorScenario
 import com.cartoonhero.source.enrollment_android.scenery.EditItemView
 import com.cartoonhero.source.props.Singleton
 import com.cartoonhero.source.props.TabLayoutItem
@@ -42,6 +43,17 @@ class UnitFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         setUpConnection()
+        context?.let {
+            scenario.toBeRoleChanged(it) { title ->
+                this.button_change_role.text = title
+            }
+            VisitorScenario().toBeCheckPermission(it) { granted ->
+                activity?.let { act ->
+                    if (!granted)
+                        scenario.toBeRequestPermission(act)
+                }
+            }
+        }
         this.button_edit.setOnClickListener { btn ->
             when ((btn as Button).text) {
                 localized(requireContext(), R.string.edit) -> {
@@ -58,12 +70,11 @@ class UnitFragment : Fragment() {
                 }
             }
         }
-        this.button_change_role.setOnClickListener {
-            val sharePrefs = context?.getSharedPreferences(
-                Singleton.sharePrefsKey, Context.MODE_PRIVATE
-            )
-            sharePrefs?.applyEdit {
-                remove("role_of_user")
+        this.button_change_role.setOnClickListener { clickView ->
+            context?.let {
+                if ((clickView as Button).text !=
+                    localized(it,R.string.role_changed))
+                    scenario.toBeSwitchRole(it)
             }
         }
         this.toggleButton.setOnCheckedChangeListener { checkBtn, isChecked ->

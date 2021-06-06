@@ -87,6 +87,6 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        android:text="@string/role_changed" />
+        android:text="@string/switch_role" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

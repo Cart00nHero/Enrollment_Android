@@ -26,15 +26,16 @@ import org.rekotlin.Action
 
 @ExperimentalCoroutinesApi
 @ObsoleteCoroutinesApi
-class UnitScenario: Actor() {
+class UnitScenario : Actor() {
 
-    private var connector:PeerConnector? = null
+    private var connector: PeerConnector? = null
     private val communicator = PeerCommunicator()
     private val peerList: HashSet<WifiP2pDevice> = hashSetOf()
     private var unitInfo = VisitedUnit()
     private var sourceSubscriber: ((List<ListEditItem>) -> Unit)? = null
     private val redux = ReduxFactory()
     private var reduxStateEvent: ((Action) -> Unit)? = null
+    private var roleSubscriber: ((String) -> Unit)? = null
 
     private fun beSubscribeRedux(
         subscriber: (Action) -> Unit) {
@@ -47,7 +48,8 @@ class UnitScenario: Actor() {
     }
 
     private fun beSubscribeSource(
-        context: Context,subscriber: (List<ListEditItem>) -> Unit) {
+        context: Context,
+        subscriber: (List<ListEditItem>) -> Unit) {
         sourceSubscriber = subscriber
         val sharePrefs =
             context.getSharedPreferences(Singleton.sharePrefsKey, Context.MODE_PRIVATE)
@@ -57,22 +59,25 @@ class UnitScenario: Actor() {
         }
         convertSource(context)
     }
+
     private fun beCheckPermission(
-        context: Context,complete: (Boolean) -> Unit) {
-        Conservator().toBeCheckPermission(this,
+        context: Context, complete: (Boolean) -> Unit) {
+        Conservator().toBeCheckPermission(
+            this,
             context, Manifest.permission.ACCESS_FINE_LOCATION) {
             CoroutineScope(Dispatchers.Main).launch {
                 complete(it)
             }
         }
     }
+
     private fun beRequestPermission(activity: Activity) {
         val permission = arrayOf(Manifest.permission.ACCESS_FINE_LOCATION)
-        Conservator().toBeRequestPermission(activity,permission)
+        Conservator().toBeRequestPermission(activity, permission)
     }
 
     private fun beSetUpConnection(
-        context: Context, complete:(Boolean) -> Unit) {
+        context: Context, complete: (Boolean) -> Unit) {
         connector = PeerConnector(context)
         connector?.toBeSetup(this) {
             if (it) {
@@ -84,12 +89,14 @@ class UnitScenario: Actor() {
             }
         }
     }
+
     private fun beDisconnect() {
         connector?.toBeRemoveGroup(this) { removed ->
             if (removed)
-                connector!!.toBeDisconnect(this,null)
+                connector!!.toBeDisconnect(this, null)
         }
     }
+
     private fun beSaveUnitInfo(context: Context) {
         val json = convertAnyToJson(unitInfo)
         context.getSharedPreferences(
@@ -99,37 +106,90 @@ class UnitScenario: Actor() {
         }
         convertSource(context)
     }
+
+    private fun beRoleChanged(
+        context: Context, subscriber: (String) -> Unit) {
+        roleSubscriber = subscriber
+        val sharePrefs = context.getSharedPreferences(
+            Singleton.sharePrefsKey, Context.MODE_PRIVATE
+        )
+        val role: String =
+            sharePrefs.getString("role_of_user", "") ?: ""
+        if (role.isEmpty()) {
+            CoroutineScope(Dispatchers.Main).launch {
+                roleSubscriber!!(
+                    localized(context, R.string.role_changed)
+                )
+            }
+        }
+    }
+
+    private fun beSwitchRole(context: Context) {
+        val sharePrefs = context.getSharedPreferences(
+            Singleton.sharePrefsKey, Context.MODE_PRIVATE)
+        sharePrefs?.applyEdit {
+            remove("role_of_user")
+        }
+        if (roleSubscriber != null) {
+            CoroutineScope(Dispatchers.Main).launch {
+                roleSubscriber!!(
+                    localized(context, R.string.role_changed)
+                )
+            }
+        }
+    }
+
     /* --------------------------------------------------------------------- */
     // MARK: - Portal Gate
     fun toBeSubscribeSource(
-        context: Context,subscriber: (List<ListEditItem>) -> Unit) {
+        context: Context, subscriber: (List<ListEditItem>) -> Unit) {
         send {
             beSubscribeSource(context, subscriber)
         }
     }
+
     fun toBeCheckPermission(
-        context: Context,complete: (Boolean) -> Unit) {
+        context: Context, complete: (Boolean) -> Unit) {
         send {
             beCheckPermission(context, complete)
         }
     }
+
     fun toBeRequestPermission(activity: Activity) {
         send {
             beRequestPermission(activity)
         }
     }
+
     fun toBeSetUpConnection(
-        context: Context, complete:(Boolean) -> Unit) {
+        context: Context, complete: (Boolean) -> Unit) {
         send {
             beSetUpConnection(context, complete)
+        }
+    }
+    fun toBeSaveUnitInfo(context: Context) {
+        send {
+            beSaveUnitInfo(context)
+        }
+    }
+
+    fun toBeRoleChanged(
+        context: Context, subscriber: (String) -> Unit) {
+        send {
+            beRoleChanged(context, subscriber)
+        }
+    }
+
+    fun toBeSwitchRole(context: Context) {
+        send {
+            beSwitchRole(context)
         }
     }
 
     /* --------------------------------------------------------------------- */
     // MARK: - Private
     fun toBeSubscribeRedux(
-        subscriber: (Action) -> Unit
-    ) {
+        subscriber: (Action) -> Unit) {
         send {
             beSubscribeRedux(subscriber)
         }
@@ -140,6 +200,7 @@ class UnitScenario: Actor() {
             beUnSubscribeRedux()
         }
     }
+
     private fun convertSource(context: Context) {
         val source = listOf(
             ListEditItem(
@@ -165,11 +226,7 @@ class UnitScenario: Actor() {
         )
         sourceSubscriber?.let { it(source) }
     }
-    fun toBeSaveUnitInfo(context: Context) {
-        send {
-            beSaveUnitInfo(context)
-        }
-    }
+
     /* --------------------------------------------------------------------- */
     // MARK: - Interface
     private val stateSubscriber = object : SceneSubscriber {
