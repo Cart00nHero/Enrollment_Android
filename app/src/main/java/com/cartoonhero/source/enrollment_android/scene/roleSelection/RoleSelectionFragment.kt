@@ -7,7 +7,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import com.cartoonhero.source.enrollment_android.MainActivity
-import com.cartoonhero.source.enrollment_android.MainFragmentContainer
+import com.cartoonhero.source.enrollment_android.StageResId
 import com.cartoonhero.source.enrollment_android.R
 import com.cartoonhero.source.props.Singleton
 import com.cartoonhero.source.props.inlineMethods.applyEdit
@@ -32,7 +32,7 @@ class RoleSelectionFragment: Fragment() {
             sharePrefs?.applyEdit {
                 putString("role_of_user","Visitor")
             }
-            (activity as MainActivity).goBack(MainFragmentContainer)
+            (activity as MainActivity).goBack(StageResId)
         }
         button_unit.setOnClickListener {
             val sharePrefs = context?.getSharedPreferences(
@@ -40,7 +40,7 @@ class RoleSelectionFragment: Fragment() {
             sharePrefs?.applyEdit {
                 putString("role_of_user","Visited_Unit")
             }
-            (activity as MainActivity).goBack(MainFragmentContainer)
+            (activity as MainActivity).goBack(StageResId)
         }
     }
 }

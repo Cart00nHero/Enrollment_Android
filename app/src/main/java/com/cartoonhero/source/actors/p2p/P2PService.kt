@@ -92,13 +92,13 @@ class P2PService : Service() {
             })
         }
     }
-    fun stopDiscoverPeers(complete: ((Boolean) -> Unit)?) {
+    fun stopDiscoverPeers(complete:(Boolean) -> Unit) {
         manager.stopPeerDiscovery(channel, object : WifiP2pManager.ActionListener {
             override fun onSuccess() {
-                complete?.let { it(true) }
+                complete(true)
             }
             override fun onFailure(reason: Int) {
-                complete?.let { it(false) }
+                complete(false)
             }
         })
     }
@@ -155,6 +155,17 @@ class P2PService : Service() {
             })
         }
     }
+    fun removeGroup(complete: (Boolean) -> Unit) {
+        manager.removeGroup(channel,object : WifiP2pManager.ActionListener {
+            override fun onSuccess() {
+                complete(true)
+            }
+
+            override fun onFailure(reason: Int) {
+                complete(false)
+            }
+        })
+    }
     /* --------------------------------------------------------------------- */
     // MARK: - Private
     private fun isNetworkAvailable(): Boolean {
@@ -187,27 +198,25 @@ class P2PService : Service() {
 
         // InetAddress from WifiP2pInfo struct.
         val groupOwnerAddress: String = info.groupOwnerAddress.hostAddress
-
         // After the group negotiation, we can determine the group owner
         // (server).
-        if (info.groupFormed && info.isGroupOwner) {
-            // Do whatever tasks are specific to the group owner.
-            // One common case is creating a group owner thread and accepting
-            // incoming connections.
-        } else if (info.groupFormed) {
-            // The other device acts as the peer (client). In this case,
-            // you'll want to create a peer thread that connects
-            // to the group owner.
-        } else {
-            Log.d(TAG,"還有else")
+        when {
+            info.groupFormed && info.isGroupOwner -> {
+                // Do whatever tasks are specific to the group owner.
+                // One common case is creating a group owner thread and accepting
+                // incoming connections.
+            }
+            info.groupFormed -> {
+                // The other device acts as the peer (client). In this case,
+                // you'll want to create a peer thread that connects
+                // to the group owner.
+            }
         }
     }
-
 
     private val channelListener = WifiP2pManager.ChannelListener {
         // The channel to the framework has been disconnected.
     }
-
     private inner class WifiDirectReceiver : BroadcastReceiver() {
         @SuppressLint("MissingPermission")
         override fun onReceive(context: Context?, intent: Intent?) {

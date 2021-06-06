@@ -7,8 +7,8 @@ import com.cartoonhero.source.enrollment_android.scene.NavigationActivity
 import com.cartoonhero.source.enrollment_android.databinding.ActivityMainBinding
 import com.cartoonhero.source.enrollment_android.scene.openning.OpenningFragment
 
-const val SceneBundleKey = "SCENE_BUNDLE_KEY"
-const val MainFragmentContainer = R.id.main_container
+const val OpeningScene = "OPENING_SCENE"
+const val StageResId = R.id.main_container
 class MainActivity : NavigationActivity() {
 
     private lateinit var binding: ActivityMainBinding
@@ -18,9 +18,9 @@ class MainActivity : NavigationActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
         setSupportActionBar(binding.toolbar)
-        val sceneName = intent.getStringExtra(SceneBundleKey)
+        val sceneName = intent.getStringExtra(OpeningScene)
         if (sceneName.isNullOrEmpty()) {
-            setRootFragment(OpenningFragment(),MainFragmentContainer)
+            setRootFragment(OpenningFragment(),StageResId)
         }
     }
 

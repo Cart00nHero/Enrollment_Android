@@ -11,6 +11,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.cartoonhero.source.enrollment_android.R
 import com.cartoonhero.source.enrollment_android.scenery.EditItemView
 import com.cartoonhero.source.props.Singleton
+import com.cartoonhero.source.props.TabLayoutItem
 import com.cartoonhero.source.props.entities.ListEditItem
 import com.cartoonhero.source.props.inlineMethods.applyEdit
 import com.cartoonhero.source.props.inlineMethods.hideKeyboard
@@ -24,14 +25,16 @@ import kotlinx.coroutines.*
 @ObsoleteCoroutinesApi
 @ExperimentalCoroutinesApi
 class UnitFragment : Fragment() {
+
     private val scenario = UnitScenario()
     private var dataSource: List<ListEditItem> = listOf()
     private var isEditState = false
-    private var p2pConnected = false
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
-        savedInstanceState: Bundle?): View? {
+        savedInstanceState: Bundle?
+    ): View? {
         super.onCreateView(inflater, container, savedInstanceState)
         return inflater.inflate(R.layout.fragment_unit, container, false)
     }
@@ -65,11 +68,10 @@ class UnitFragment : Fragment() {
         }
         this.toggleButton.setOnCheckedChangeListener { checkBtn, isChecked ->
             if (isChecked) {
-                if (p2pConnected) {
-                    scenario.toBeSearchPeers()
-                } else {
-                    checkBtn.isChecked = false
-                    setUpConnection()
+                context?.let {
+                    scenario.toBeSetUpConnection(it) { success ->
+                        if (!success) checkBtn.isChecked = false
+                    }
                 }
             }
         }
@@ -86,6 +88,7 @@ class UnitFragment : Fragment() {
         super.onStop()
         scenario.toBeUnSubscribeRedux()
     }
+
     private fun setUpConnection() {
         context?.let {
             editor_list.layoutParams.height = 3 * 64.toDp(it)
@@ -97,18 +100,12 @@ class UnitFragment : Fragment() {
                 }
             }
             scenario.toBeCheckPermission(it) { granted ->
-                if (granted) {
-                    scenario.toBeSetUpConnection(it) { connected ->
-                        p2pConnected = connected
-                    }
-                } else {
-                    activity?.let { act ->
-                        scenario.toBeRequestPermission(act)
-                    }
-                }
+                if (!granted)
+                    activity?.let { act -> scenario.toBeRequestPermission(act) }
             }
         }
     }
+
     private inner class RecyclerAdapter :
         RecyclerView.Adapter<RecyclerAdapter.ViewHolder>() {
         override fun onCreateViewHolder(

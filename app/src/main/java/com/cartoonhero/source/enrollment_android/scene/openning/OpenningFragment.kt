@@ -7,11 +7,10 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import com.cartoonhero.source.enrollment_android.MainActivity
-import com.cartoonhero.source.enrollment_android.MainFragmentContainer
+import com.cartoonhero.source.enrollment_android.StageResId
 import com.cartoonhero.source.enrollment_android.R
 import com.cartoonhero.source.enrollment_android.scene.roleSelection.RoleSelectionFragment
-import com.cartoonhero.source.enrollment_android.scene.visitedUnit.UnitFragment
-import com.cartoonhero.source.enrollment_android.scene.visitor.VisitorFragment
+import com.cartoonhero.source.enrollment_android.scene.tabMenu.TabMenuFragment
 import com.cartoonhero.source.props.Singleton
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.ObsoleteCoroutinesApi
@@ -32,18 +31,16 @@ class OpenningFragment: Fragment() {
         super.onStart()
         val sharePrefs = context?.getSharedPreferences(
             Singleton.sharePrefsKey, Context.MODE_PRIVATE)
-        when(sharePrefs?.getString("role_of_user","")) {
+        Singleton.instance.currentRole =
+            sharePrefs?.getString("role_of_user","") ?: ""
+        when(Singleton.instance.currentRole) {
             "" -> {
                 (activity as MainActivity).goForward(
-                    listOf(RoleSelectionFragment()),MainFragmentContainer)
+                    listOf(RoleSelectionFragment()),StageResId)
             }
-            "Visitor" -> {
+            else -> {
                 (activity as MainActivity).goForward(
-                    listOf(VisitorFragment()),MainFragmentContainer)
-            }
-            "Visited_Unit" -> {
-                (activity as MainActivity).goForward(
-                    listOf(UnitFragment()),MainFragmentContainer)
+                    listOf(TabMenuFragment()),StageResId)
             }
         }
     }

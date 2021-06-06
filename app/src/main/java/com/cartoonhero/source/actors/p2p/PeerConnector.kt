@@ -79,10 +79,30 @@ class PeerConnector(context: Context): Actor() {
             }
         }
     }
+    private fun beDisconnect(
+        sender: Actor,complete: ((Boolean) -> Unit)?) {
+        hostService?.disconnect {
+            if (complete != null) {
+                sender.send {
+                    complete(it)
+                }
+            }
+        }
+    }
     private fun beCreateGroup(sender: Actor,complete: (Boolean) -> Unit) {
         hostService?.createGroup {
             sender.send {
                 complete(it)
+            }
+        }
+    }
+    private fun beRemoveGroup(
+        sender: Actor,complete: ((Boolean) -> Unit)?) {
+        hostService?.removeGroup {
+            if (complete != null) {
+                sender.send {
+                    complete(it)
+                }
             }
         }
     }
@@ -127,16 +147,22 @@ class PeerConnector(context: Context): Actor() {
             beConnectPeer(sender, peer, complete)
         }
     }
+    fun toBeDisconnect(
+        sender: Actor,complete: ((Boolean) -> Unit)?) {
+        send {
+            beDisconnect(sender, complete)
+        }
+    }
     fun toBeCreateGroup(sender: Actor,complete: (Boolean) -> Unit) {
         send {
             beCreateGroup(sender, complete)
         }
     }
-    fun toBeAskGroupPassphrase(sender: Actor,complete: (String) -> Unit) {
-        send {
-            beAskGroupPassphrase(sender, complete)
-        }
+    fun toBeRemoveGroup(
+        sender: Actor,complete: ((Boolean) -> Unit)?) {
+        send { beRemoveGroup(sender, complete) }
     }
+
     /* --------------------------------------------------------------------- */
     // MARK: - Private
     private fun bindP2PService() {
