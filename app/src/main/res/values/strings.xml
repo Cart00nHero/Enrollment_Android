@@ -35,4 +35,5 @@
     <string name="select_qrcode_image">Please select a QRCode image</string>
     <string name="information">Information</string>
     <string name="web">Web</string>
+    <string name="switch_role">Switch role</string>
 </resources>

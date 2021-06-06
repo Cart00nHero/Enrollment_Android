@@ -31,6 +31,7 @@ class VisitorScenario : Actor() {
     private val redux = ReduxFactory()
     private var reduxStateEvent: ((Action) -> Unit)? = null
     private var sourceSubscriber: ((List<ListEditItem>) -> Unit)? = null
+    private var roleSubscriber:((String) -> Unit)? = null
 
     private fun beSubscribeRedux(
         subscriber: (Action) -> Unit) {
@@ -55,12 +56,10 @@ class VisitorScenario : Actor() {
     }
 
     private fun beCheckPermission(
-        context: Context, complete: (Boolean) -> Unit
-    ) {
+        context: Context, complete: (Boolean) -> Unit) {
         Conservator().toBeCheckPermission(
             this,
-            context, Manifest.permission.ACCESS_FINE_LOCATION
-        ) {
+            context, Manifest.permission.ACCESS_FINE_LOCATION) {
             CoroutineScope(Dispatchers.Main).launch {
                 complete(it)
             }
@@ -73,8 +72,7 @@ class VisitorScenario : Actor() {
     }
 
     private fun beBuildP2PConnection(
-        activity: Activity, complete: (Boolean) -> Unit
-    ) {
+        activity: Activity, complete: (Boolean) -> Unit) {
         peerConnector = PeerConnector(activity)
         peerConnector.toBeSetup(this) {
             complete(it)
@@ -94,6 +92,37 @@ class VisitorScenario : Actor() {
             putString("visitor_info", json)
         }
         convertVisitorSource(context)
+    }
+    private fun beRoleChanged(
+        context: Context, subscriber: (String) -> Unit) {
+        roleSubscriber = subscriber
+        val sharePrefs = context.getSharedPreferences(
+            Singleton.sharePrefsKey, Context.MODE_PRIVATE
+        )
+        val role: String =
+            sharePrefs.getString("role_of_user", "") ?: ""
+        if (role.isEmpty()) {
+            CoroutineScope(Dispatchers.Main).launch {
+                roleSubscriber!!(
+                    localized(context, R.string.role_changed)
+                )
+            }
+        }
+    }
+
+    private fun beSwitchRole(context: Context) {
+        val sharePrefs = context.getSharedPreferences(
+            Singleton.sharePrefsKey, Context.MODE_PRIVATE)
+        sharePrefs?.applyEdit {
+            remove("role_of_user")
+        }
+        if (roleSubscriber != null) {
+            CoroutineScope(Dispatchers.Main).launch {
+                roleSubscriber!!(
+                    localized(context, R.string.role_changed)
+                )
+            }
+        }
     }
 
     /* --------------------------------------------------------------------- */
@@ -147,6 +176,18 @@ class VisitorScenario : Actor() {
     fun toBeSaveVisitor(context: Context) {
         send {
             beSaveVisitor(context)
+        }
+    }
+    fun toBeRoleChanged(
+        context: Context, subscriber: (String) -> Unit) {
+        send {
+            beRoleChanged(context, subscriber)
+        }
+    }
+
+    fun toBeSwitchRole(context: Context) {
+        send {
+            beSwitchRole(context)
         }
     }
 

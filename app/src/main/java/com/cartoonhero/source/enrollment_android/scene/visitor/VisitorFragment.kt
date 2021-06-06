@@ -23,12 +23,12 @@ import kotlinx.coroutines.*
 
 @ObsoleteCoroutinesApi
 @ExperimentalCoroutinesApi
-class VisitorFragment: Fragment() {
+class VisitorFragment : Fragment() {
     private val scenario = VisitorScenario()
-    private var editDataSource:List<ListEditItem> = listOf()
+    private var editDataSource: List<ListEditItem> = listOf()
     private var isEditState = false
     private val concatAdapter =
-        ConcatAdapter(RecyclerAdapter(),RecyclerAdapter())
+        ConcatAdapter(RecyclerAdapter(), RecyclerAdapter())
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -36,12 +36,16 @@ class VisitorFragment: Fragment() {
         savedInstanceState: Bundle?): View? {
         super.onCreateView(inflater, container, savedInstanceState)
         return inflater.inflate(
-            R.layout.fragment_visitor,container,false)
+            R.layout.fragment_visitor, container, false
+        )
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         context?.let {
+            scenario.toBeRoleChanged(it) { title ->
+                this.button_change_role.text = title
+            }
             scenario.toBeGetDataSource(it) { source ->
                 editDataSource = source
                 CoroutineScope(Dispatchers.Main).launch {
@@ -49,40 +53,36 @@ class VisitorFragment: Fragment() {
                         concatAdapter.adapters[0]
                 }
             }
-            scenario.toBeCheckPermission(it) { granted ->
-                activity?.let { activity ->
-                    if (granted) {
-                        scenario.toBeBuildP2PConnection(activity) {
-                        }
-                    } else {
-                        scenario.toBeRequestPermission(activity) }
-                    }
+            VisitorScenario().toBeCheckPermission(it) { granted ->
+                activity?.let { act ->
+                    if (!granted)
+                        scenario.toBeRequestPermission(act)
                 }
             }
+        }
         this.button_edit.setOnClickListener { btn ->
-            when((btn as Button).text) {
-                localized(requireContext(),R.string.edit) -> {
+            when ((btn as Button).text) {
+                localized(requireContext(), R.string.edit) -> {
                     isEditState = true
                     concatAdapter.adapters[0].notifyDataSetChanged()
                     btn.text =
-                        localized(requireContext(),R.string.save)
+                        localized(requireContext(), R.string.save)
                 }
-                localized(requireContext(),R.string.save) -> {
+                localized(requireContext(), R.string.save) -> {
                     isEditState = false
                     context?.let { scenario.toBeSaveVisitor(it) }
-                    btn.text = localized(requireContext(),R.string.edit)
+                    btn.text = localized(requireContext(), R.string.edit)
                     btn.hideKeyboard()
                 }
             }
         }
-        button_change_role.setOnClickListener {
-            val sharePrefs = context?.getSharedPreferences(
-                Singleton.sharePrefsKey,Context.MODE_PRIVATE)
-            sharePrefs?.applyEdit {
-                remove("role_of_user")
+        button_change_role.setOnClickListener { clickedView ->
+            context?.let {
+                scenario.toBeSwitchRole(it)
             }
         }
     }
+
     override fun onStart() {
         super.onStart()
         scenario.toBeSubscribeRedux {
@@ -98,9 +98,11 @@ class VisitorFragment: Fragment() {
         super.onDestroy()
         scenario.toBeDestroyP2P()
     }
+
     private inner class RecyclerAdapter : RecyclerView.Adapter<RecyclerAdapter.ViewHolder>() {
         override fun onCreateViewHolder(
-            parent: ViewGroup, viewType: Int): ViewHolder {
+            parent: ViewGroup, viewType: Int
+        ): ViewHolder {
             val itemView = LayoutInflater.from(parent.context)
                 .inflate(R.layout.itemview_edit, parent, false)
             return ViewHolder(itemView)
@@ -109,18 +111,21 @@ class VisitorFragment: Fragment() {
         override fun getItemCount(): Int {
             return editDataSource.size
         }
+
         override fun onBindViewHolder(holder: ViewHolder, position: Int) {
             holder.itemView.layoutParams.height =
-                (editor_list.measuredHeight/3)
+                (editor_list.measuredHeight / 3)
             holder.itemView.tag = position
             holder.bindData(
-                holder.itemView as EditItemView,position)
+                holder.itemView as EditItemView, position
+            )
         }
+
         inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
             fun bindData(itemView: EditItemView, position: Int) {
                 val data = editDataSource[position]
                 itemView.text_field.setMaxLength(25)
-                itemView.bindItemData(data,isEditState)
+                itemView.bindItemData(data, isEditState)
             }
         }
     }

@@ -20,20 +20,6 @@ class TabMenuFragment:Fragment() {
     private val scenario = TabMenuScenario()
     private var tabSource: TabMenuSource = TabMenuSource()
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        context?.let {
-            scenario.toBePrepareTabSources(it) { source ->
-                tabSource = source
-                tab_bar.inflateMenu(tabSource.menuResId)
-                TabLayoutMediator(this.tabLayout,this.tab_viewPager) { tab,position ->
-                    val tabItem = source.tabItems[position]
-                    tab.text = tabItem.title
-                }.attach()
-            }
-        }
-    }
-
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -44,9 +30,19 @@ class TabMenuFragment:Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        activity?.let {
-            if (it is AppCompatActivity)
-                this.tab_viewPager.adapter = ViewPagerStateAdapter(it)
+        context?.let {
+            scenario.toBePrepareTabSources(it) { source ->
+                tabSource = source
+                tab_bar.inflateMenu(tabSource.menuResId)
+                activity?.let { act ->
+                    if (act is AppCompatActivity)
+                        this.tab_viewPager.adapter = ViewPagerStateAdapter(act)
+                }
+                TabLayoutMediator(this.tabLayout,this.tab_viewPager) { tab,position ->
+                    val tabItem = source.tabItems[position]
+                    tab.text = tabItem.title
+                }.attach()
+            }
         }
     }
 
