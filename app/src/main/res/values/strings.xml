@@ -32,4 +32,7 @@
     <string name="send_info">Send information</string>
     <string name="code">Code</string>
     <string name="form_url">Form url</string>
+    <string name="select_qrcode_image">Please select a QRCode image</string>
+    <string name="information">Information</string>
+    <string name="web">Web</string>
 </resources>

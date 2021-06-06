@@ -4,6 +4,7 @@ import android.content.Context
 
 const val sharedPreferencesName = "enrollment_android_sharedPreferences"
 class Singleton {
+    var currentRole: String = ""
     companion object {
         val instance = Singleton()
         const val sharePrefsKey = "Enrollment_SharedPreferences_Key"

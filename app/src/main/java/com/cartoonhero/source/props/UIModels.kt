@@ -67,17 +67,18 @@ data class SpinnerViewItem (
 )
 
 data class TabMenuViewItem(
-    val tabItems: MutableList<TabTextViewItem> = mutableListOf(),
+    val tabItems: MutableList<TabLayoutItem> = mutableListOf(),
     var vpItem: ViewPagerItem = ViewPagerItem(),
     var selectedIndex: Int = 0
 )
 
-data class TabTextViewItem (
-    var text: String = "",
+data class TabLayoutItem (
+    var title: String = "",
     var numberOfLines: Int = 1,
     var textColor: Int = Color.parseColor("#60f3f3f3"),
     var selectColor: Int = Color.parseColor("#24adf6"),
-    var alignment: Int = View.TEXT_ALIGNMENT_CENTER
+    var alignment: Int = View.TEXT_ALIGNMENT_CENTER,
+    var iconResId: Int = 0
 )
 
 data class ViewPagerItem(

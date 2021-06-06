@@ -13,7 +13,6 @@ import com.cartoonhero.source.enrollment_android.R
 import com.cartoonhero.source.props.Singleton
 import com.cartoonhero.source.props.entities.ListEditItem
 import com.cartoonhero.source.props.entities.VisitedUnit
-import com.cartoonhero.source.props.entities.VisitorInfo
 import com.cartoonhero.source.props.inlineMethods.applyEdit
 import com.cartoonhero.source.props.inlineMethods.convertAnyToJson
 import com.cartoonhero.source.props.inlineMethods.toAny
@@ -85,17 +84,10 @@ class UnitScenario: Actor() {
             }
         }
     }
-    private fun beSearchPeers() {
-        connector?.toBeDiscovering(this) {
-            for (peer in it) {
-                if (peer.status != WifiP2pDevice.CONNECTED) {
-                    connector?.toBeConnectPeer(this,peer) { connected ->
-                        if (connected && !peerList.contains(peer)) {
-                            peerList.add(peer)
-                        }
-                    }
-                }
-            }
+    private fun beDisconnect() {
+        connector?.toBeRemoveGroup(this) { removed ->
+            if (removed)
+                connector!!.toBeDisconnect(this,null)
         }
     }
     private fun beSaveUnitInfo(context: Context) {
@@ -132,11 +124,7 @@ class UnitScenario: Actor() {
             beSetUpConnection(context, complete)
         }
     }
-    fun toBeSearchPeers() {
-        send {
-            beSearchPeers()
-        }
-    }
+
     /* --------------------------------------------------------------------- */
     // MARK: - Private
     fun toBeSubscribeRedux(

@@ -6,10 +6,15 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.text.InputFilter
 import android.util.Base64
+import android.util.Log
 import android.view.View
 import android.view.inputmethod.InputMethodManager
+import android.webkit.URLUtil
 import android.widget.EditText
+import kotlinx.coroutines.*
 import java.io.ByteArrayOutputStream
+import java.net.HttpURLConnection
+import java.net.URL
 
 inline fun SharedPreferences.applyEdit(
     func: SharedPreferences.Editor.() -> SharedPreferences.Editor
@@ -42,4 +47,18 @@ fun View.hideKeyboard() {
 
 fun EditText.setMaxLength(maxLength: Int) {
     filters = arrayOf<InputFilter>(InputFilter.LengthFilter(maxLength))
+}
+@Suppress("BlockingMethodInNonBlockingContext")
+fun URL.isReachable(complete:(Boolean) -> Unit) {
+    CoroutineScope(Dispatchers.IO).launch {
+        val requestJob:Deferred<Boolean> = async {
+            with(this@isReachable.openConnection() as HttpURLConnection) {
+                return@async responseCode == 200
+            }
+        }
+        withContext(Dispatchers.Default) {
+            val result = requestJob.await()
+            complete(result)
+        }
+    }
 }
