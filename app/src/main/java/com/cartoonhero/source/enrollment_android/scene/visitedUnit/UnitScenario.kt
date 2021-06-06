@@ -138,6 +138,9 @@ class UnitScenario : Actor() {
             }
         }
     }
+    private fun beDestroyConnection() {
+        connector?.toBeDestroyConnection()
+    }
 
     /* --------------------------------------------------------------------- */
     // MARK: - Portal Gate
@@ -183,6 +186,11 @@ class UnitScenario : Actor() {
     fun toBeSwitchRole(context: Context) {
         send {
             beSwitchRole(context)
+        }
+    }
+    fun toBeDestroyConnection() {
+        send {
+            beDestroyConnection()
         }
     }
 

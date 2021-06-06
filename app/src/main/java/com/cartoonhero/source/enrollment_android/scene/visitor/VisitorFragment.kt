@@ -92,8 +92,8 @@ class VisitorFragment : Fragment() {
     }
 
     override fun onDestroy() {
-        super.onDestroy()
         scenario.toBeDestroyP2P()
+        super.onDestroy()
     }
 
     private inner class RecyclerAdapter : RecyclerView.Adapter<RecyclerAdapter.ViewHolder>() {

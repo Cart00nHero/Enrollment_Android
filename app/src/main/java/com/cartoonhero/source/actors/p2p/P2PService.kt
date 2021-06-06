@@ -72,8 +72,7 @@ class P2PService : Service() {
 
     @SuppressLint("MissingPermission")
     fun discoverPeers(
-        subscribe: (List<WifiP2pDevice>) -> Unit
-    ) {
+        subscribe: (List<WifiP2pDevice>) -> Unit) {
         if (isPermissionGranted) {
             manager.discoverPeers(channel, object : WifiP2pManager.ActionListener {
                 override fun onSuccess() {

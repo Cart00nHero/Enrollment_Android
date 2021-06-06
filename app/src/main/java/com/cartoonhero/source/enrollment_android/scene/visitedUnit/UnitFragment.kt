@@ -47,12 +47,6 @@ class UnitFragment : Fragment() {
             scenario.toBeRoleChanged(it) { title ->
                 this.button_change_role.text = title
             }
-            VisitorScenario().toBeCheckPermission(it) { granted ->
-                activity?.let { act ->
-                    if (!granted)
-                        scenario.toBeRequestPermission(act)
-                }
-            }
         }
         this.button_edit.setOnClickListener { btn ->
             when ((btn as Button).text) {
@@ -100,6 +94,11 @@ class UnitFragment : Fragment() {
         scenario.toBeUnSubscribeRedux()
     }
 
+    override fun onDestroy() {
+        scenario.toBeDestroyConnection()
+        super.onDestroy()
+    }
+
     private fun setUpConnection() {
         context?.let {
             editor_list.layoutParams.height = 3 * 64.toDp(it)
@@ -110,7 +109,7 @@ class UnitFragment : Fragment() {
                         RecyclerAdapter()
                 }
             }
-            scenario.toBeCheckPermission(it) { granted ->
+            UnitScenario().toBeCheckPermission(it) { granted ->
                 if (!granted)
                     activity?.let { act -> scenario.toBeRequestPermission(act) }
             }
