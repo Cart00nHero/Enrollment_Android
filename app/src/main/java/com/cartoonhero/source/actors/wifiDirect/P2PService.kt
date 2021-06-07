@@ -1,4 +1,4 @@
-package com.cartoonhero.source.actors.p2p
+package com.cartoonhero.source.actors.wifiDirect
 
 import android.annotation.SuppressLint
 import android.app.Service

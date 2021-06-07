@@ -1,4 +1,4 @@
-package com.cartoonhero.source.actors.p2p
+package com.cartoonhero.source.actors.wifiDirect
 
 import com.cartoonhero.source.actormodel.Actor
 import kotlinx.coroutines.ExperimentalCoroutinesApi

@@ -1,4 +1,4 @@
-package com.cartoonhero.source.actors.p2p
+package com.cartoonhero.source.actors.wifiDirect
 
 import android.Manifest
 import android.content.ComponentName

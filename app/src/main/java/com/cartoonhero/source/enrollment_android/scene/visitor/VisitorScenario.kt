@@ -6,7 +6,7 @@ import android.content.Context
 import android.text.InputType
 import com.cartoonhero.source.actormodel.Actor
 import com.cartoonhero.source.actors.Conservator
-import com.cartoonhero.source.actors.p2p.PeerConnector
+import com.cartoonhero.source.actors.wifiDirect.PeerConnector
 import com.cartoonhero.source.enrollment_android.R
 import com.cartoonhero.source.props.Singleton
 import com.cartoonhero.source.props.entities.ListEditItem
