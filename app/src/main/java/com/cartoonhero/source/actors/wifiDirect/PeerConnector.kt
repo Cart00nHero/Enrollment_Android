@@ -1,4 +1,4 @@
-package com.cartoonhero.source.actors.p2p
+package com.cartoonhero.source.actors.wifiDirect
 
 import android.Manifest
 import android.content.ComponentName
@@ -16,7 +16,7 @@ import kotlinx.coroutines.*
 @ObsoleteCoroutinesApi
 class PeerConnector(context: Context): Actor() {
 
-    private var hostService: P2PService? = null
+    private var hostService: WifiP2PService? = null
     private val peers = mutableListOf<WifiP2pDevice>()
     private val mContext: Context = context
     private var serviceBoundEvent: (() -> Unit)? = null
@@ -44,7 +44,7 @@ class PeerConnector(context: Context): Actor() {
         }
     }
 
-    private fun beDestroyConnection() {
+    private fun beDestroyService() {
         unbindP2PService()
     }
 
@@ -122,9 +122,9 @@ class PeerConnector(context: Context): Actor() {
             beSetup(sender, complete)
         }
     }
-    fun toBeDestroyConnection() {
+    fun toBeDestroyService() {
         send {
-            beDestroyConnection()
+            beDestroyService()
         }
     }
     fun toBeDiscovering(
@@ -167,7 +167,7 @@ class PeerConnector(context: Context): Actor() {
     // MARK: - Private
     private fun bindP2PService() {
         val intent = Intent()
-        intent.setClass(mContext,P2PService::class.java)
+        intent.setClass(mContext,WifiP2PService::class.java)
         mContext.bindService(intent,connection,BIND_AUTO_CREATE)
     }
     private fun unbindP2PService() {
@@ -175,8 +175,8 @@ class PeerConnector(context: Context): Actor() {
     }
     private val connection: ServiceConnection = object : ServiceConnection {
         override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
-            val binder: P2PService.ServiceBinder = service as P2PService.ServiceBinder
-            hostService = binder.service
+            val binder: WifiP2PService.ServiceBinder = service as WifiP2PService.ServiceBinder
+            hostService = binder.wifiService
             serviceBoundEvent?.let { it() }
         }
         override fun onServiceDisconnected(name: ComponentName?) {

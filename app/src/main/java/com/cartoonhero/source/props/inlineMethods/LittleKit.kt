@@ -6,10 +6,8 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.text.InputFilter
 import android.util.Base64
-import android.util.Log
 import android.view.View
 import android.view.inputmethod.InputMethodManager
-import android.webkit.URLUtil
 import android.widget.EditText
 import kotlinx.coroutines.*
 import java.io.ByteArrayOutputStream

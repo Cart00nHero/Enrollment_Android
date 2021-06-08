@@ -1,4 +1,4 @@
-package com.cartoonhero.source.actors.p2p
+package com.cartoonhero.source.actors.wifiDirect
 
 import android.annotation.SuppressLint
 import android.app.Service
@@ -15,7 +15,7 @@ import android.net.wifi.p2p.WifiP2pManager
 import android.os.*
 import android.util.Log
 
-class P2PService : Service() {
+class WifiP2PService : Service() {
 
     private val TAG = "P2PHostService"
     private lateinit var channel: WifiP2pManager.Channel
@@ -29,8 +29,8 @@ class P2PService : Service() {
         return ServiceBinder()
     }
     inner class ServiceBinder : Binder() {
-        val service: P2PService
-            get() = this@P2PService
+        val wifiService: WifiP2PService
+            get() = this@WifiP2PService
     }
 
     override fun onCreate() {
