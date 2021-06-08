@@ -31,7 +31,7 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Enrollment_Android">
         <service
-            android:name="com.cartoonhero.source.actors.wifiDirect.P2PService"
+            android:name="com.cartoonhero.source.actors.wifiDirect.WifiP2PService"
             android:enabled="true"
             android:exported="false" />
 

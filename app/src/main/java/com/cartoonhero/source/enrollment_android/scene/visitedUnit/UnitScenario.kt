@@ -13,9 +13,7 @@ import com.cartoonhero.source.enrollment_android.R
 import com.cartoonhero.source.props.Singleton
 import com.cartoonhero.source.props.entities.ListEditItem
 import com.cartoonhero.source.props.entities.VisitedUnit
-import com.cartoonhero.source.props.inlineMethods.applyEdit
-import com.cartoonhero.source.props.inlineMethods.convertAnyToJson
-import com.cartoonhero.source.props.inlineMethods.toAny
+import com.cartoonhero.source.props.inlineMethods.*
 import com.cartoonhero.source.props.localized
 import com.cartoonhero.source.redux.ReduxFactory
 import com.cartoonhero.source.redux.SceneState
@@ -30,7 +28,7 @@ class UnitScenario : Actor() {
 
     private var connector: PeerConnector? = null
     private val communicator = PeerCommunicator()
-    private val peerList: HashSet<WifiP2pDevice> = hashSetOf()
+//    private val peerList: HashSet<WifiP2pDevice> = hashSetOf()
     private var unitInfo = VisitedUnit()
     private var sourceSubscriber: ((List<ListEditItem>) -> Unit)? = null
     private val redux = ReduxFactory()
@@ -76,7 +74,7 @@ class UnitScenario : Actor() {
         Conservator().toBeRequestPermission(activity, permission)
     }
 
-    private fun beSetUpConnection(
+    private fun beEnableWifiDirect(
         context: Context, complete: (Boolean) -> Unit) {
         connector = PeerConnector(context)
         connector?.toBeSetup(this) {
@@ -89,12 +87,17 @@ class UnitScenario : Actor() {
             }
         }
     }
-
-    private fun beDisconnect() {
-        connector?.toBeRemoveGroup(this) { removed ->
-            if (removed)
-                connector!!.toBeDisconnect(this, null)
+    private fun beDiscoverPeers() {
+        connector?.toBeDiscovering(this) {
+            for (peer in it) {
+                if (peer.status != WifiP2pDevice.CONNECTED) {
+                    connector!!.toBeConnectPeer(this,peer,null)
+                }
+            }
         }
+    }
+    private fun beStopDiscovering() {
+        connector?.toBeStopDiscovering(this,null)
     }
 
     private fun beSaveUnitInfo(context: Context) {
@@ -138,8 +141,12 @@ class UnitScenario : Actor() {
             }
         }
     }
-    private fun beDestroyConnection() {
-        connector?.toBeDestroyConnection()
+    private fun beDestroyService() {
+        connector?.toBeRemoveGroup(this) { removed ->
+            if (removed)
+                connector!!.toBeDisconnect(this, null)
+            connector?.toBeDestroyService()
+        }
     }
 
     /* --------------------------------------------------------------------- */
@@ -164,10 +171,20 @@ class UnitScenario : Actor() {
         }
     }
 
-    fun toBeSetUpConnection(
+    fun toBeEnableWifiDirect(
         context: Context, complete: (Boolean) -> Unit) {
         send {
-            beSetUpConnection(context, complete)
+            beEnableWifiDirect(context, complete)
+        }
+    }
+    fun toBeDiscoverPeers() {
+        send {
+            beDiscoverPeers()
+        }
+    }
+    fun toBeStopDiscovering() {
+        send {
+            beStopDiscovering()
         }
     }
     fun toBeSaveUnitInfo(context: Context) {
@@ -188,9 +205,9 @@ class UnitScenario : Actor() {
             beSwitchRole(context)
         }
     }
-    fun toBeDestroyConnection() {
+    fun toBeDestroyService() {
         send {
-            beDestroyConnection()
+            beDestroyService()
         }
     }
 

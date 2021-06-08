@@ -1,6 +1,5 @@
 package com.cartoonhero.source.enrollment_android.scene.visitedUnit
 
-import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -9,12 +8,8 @@ import android.widget.Button
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.RecyclerView
 import com.cartoonhero.source.enrollment_android.R
-import com.cartoonhero.source.enrollment_android.scene.visitor.VisitorScenario
 import com.cartoonhero.source.enrollment_android.scenery.EditItemView
-import com.cartoonhero.source.props.Singleton
-import com.cartoonhero.source.props.TabLayoutItem
 import com.cartoonhero.source.props.entities.ListEditItem
-import com.cartoonhero.source.props.inlineMethods.applyEdit
 import com.cartoonhero.source.props.inlineMethods.hideKeyboard
 import com.cartoonhero.source.props.inlineMethods.setMaxLength
 import com.cartoonhero.source.props.localized
@@ -30,6 +25,7 @@ class UnitFragment : Fragment() {
     private val scenario = UnitScenario()
     private var dataSource: List<ListEditItem> = listOf()
     private var isEditState = false
+    private var enableWifiP2P = false
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -42,7 +38,7 @@ class UnitFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        setUpConnection()
+        initFragment()
         context?.let {
             scenario.toBeRoleChanged(it) { title ->
                 this.button_change_role.text = title
@@ -73,11 +69,20 @@ class UnitFragment : Fragment() {
         }
         this.toggleButton.setOnCheckedChangeListener { checkBtn, isChecked ->
             if (isChecked) {
-                context?.let {
-                    scenario.toBeSetUpConnection(it) { success ->
-                        if (!success) checkBtn.isChecked = false
+                if (!enableWifiP2P) {
+                    context?.let {
+                        scenario.toBeEnableWifiDirect(it) { enable ->
+                            enableWifiP2P = enable
+                            if (enable) {
+                                scenario.toBeDiscoverPeers()
+                            } else {
+                                checkBtn.isChecked = false
+                            }
+                        }
                     }
                 }
+            } else {
+                scenario.toBeStopDiscovering()
             }
         }
     }
@@ -95,11 +100,11 @@ class UnitFragment : Fragment() {
     }
 
     override fun onDestroy() {
-        scenario.toBeDestroyConnection()
+        scenario.toBeDestroyService()
         super.onDestroy()
     }
 
-    private fun setUpConnection() {
+    private fun initFragment() {
         context?.let {
             editor_list.layoutParams.height = 3 * 64.toDp(it)
             scenario.toBeSubscribeSource(it) { source ->
@@ -110,8 +115,13 @@ class UnitFragment : Fragment() {
                 }
             }
             UnitScenario().toBeCheckPermission(it) { granted ->
-                if (!granted)
+                if (!granted) {
                     activity?.let { act -> scenario.toBeRequestPermission(act) }
+                } else {
+                    scenario.toBeEnableWifiDirect(it) { enable ->
+                        enableWifiP2P = enable
+                    }
+                }
             }
         }
     }

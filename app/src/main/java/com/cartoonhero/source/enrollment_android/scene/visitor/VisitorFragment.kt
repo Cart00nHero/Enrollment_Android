@@ -22,6 +22,7 @@ import kotlinx.coroutines.*
 @ExperimentalCoroutinesApi
 class VisitorFragment : Fragment() {
     private val scenario = VisitorScenario()
+    private var p2pEnabled = false
     private var editDataSource: List<ListEditItem> = listOf()
     private var isEditState = false
     private val concatAdapter =
@@ -30,7 +31,8 @@ class VisitorFragment : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
-        savedInstanceState: Bundle?): View? {
+        savedInstanceState: Bundle?
+    ): View? {
         super.onCreateView(inflater, container, savedInstanceState)
         return inflater.inflate(
             R.layout.fragment_visitor, container, false
@@ -52,8 +54,13 @@ class VisitorFragment : Fragment() {
             }
             VisitorScenario().toBeCheckPermission(it) { granted ->
                 activity?.let { act ->
-                    if (!granted)
-                        scenario.toBeRequestPermission(act)
+                    if (!granted) {
+                        VisitorScenario().toBeRequestPermission(act)
+                    } else {
+                        scenario.toBeEnableP2PService(act) { enable ->
+                            p2pEnabled = enable
+                        }
+                    }
                 }
             }
         }
@@ -71,6 +78,20 @@ class VisitorFragment : Fragment() {
                     btn.text = localized(requireContext(), R.string.edit)
                     btn.hideKeyboard()
                 }
+            }
+        }
+        toggleButton.setOnCheckedChangeListener { buttonView, isChecked ->
+            if (isChecked) {
+                if (!p2pEnabled) {
+                    activity?.let {
+                        scenario.toBeEnableP2PService(it) { enable ->
+                            p2pEnabled = enable
+                            buttonView.isChecked = enable
+                        }
+                    }
+                }
+            } else {
+                scenario.toBeLeaveGroup()
             }
         }
         button_change_role.setOnClickListener { clickedView ->

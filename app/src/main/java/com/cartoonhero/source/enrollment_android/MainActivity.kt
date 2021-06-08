@@ -6,6 +6,7 @@ import android.view.MenuItem
 import com.cartoonhero.source.enrollment_android.scene.NavigationActivity
 import com.cartoonhero.source.enrollment_android.databinding.ActivityMainBinding
 import com.cartoonhero.source.enrollment_android.scene.openning.OpenningFragment
+import com.cartoonhero.source.props.Singleton
 
 const val OpeningScene = "OPENING_SCENE"
 const val StageResId = R.id.main_container
@@ -15,6 +16,7 @@ class MainActivity : NavigationActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        Singleton.instance.sContext = this
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
         setSupportActionBar(binding.toolbar)

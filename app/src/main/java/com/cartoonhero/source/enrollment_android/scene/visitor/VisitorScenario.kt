@@ -26,7 +26,7 @@ import org.rekotlin.Action
 @ObsoleteCoroutinesApi
 
 class VisitorScenario : Actor() {
-    private lateinit var peerConnector: PeerConnector
+    private lateinit var connector: PeerConnector
     private var visitor: VisitorInfo = VisitorInfo()
     private val redux = ReduxFactory()
     private var reduxStateEvent: ((Action) -> Unit)? = null
@@ -65,22 +65,24 @@ class VisitorScenario : Actor() {
             }
         }
     }
-
     private fun beRequestPermission(activity: Activity) {
         val permission = arrayOf(Manifest.permission.ACCESS_FINE_LOCATION)
         Conservator().toBeRequestPermission(activity, permission)
     }
 
-    private fun beBuildP2PConnection(
+    private fun beEnableP2PService(
         activity: Activity, complete: (Boolean) -> Unit) {
-        peerConnector = PeerConnector(activity)
-        peerConnector.toBeSetup(this) {
+        connector = PeerConnector(activity)
+        connector.toBeSetup(this) {
             complete(it)
         }
     }
+    private fun beLeaveGroup() {
+        connector.toBeRemoveGroup(this,null)
+    }
 
     private fun beDestroyP2P() {
-        peerConnector.toBeDestroyConnection()
+        connector.toBeDestroyService()
     }
 
     private fun beSaveVisitor(context: Context) {
@@ -160,10 +162,15 @@ class VisitorScenario : Actor() {
         }
     }
 
-    fun toBeBuildP2PConnection(
+    fun toBeEnableP2PService(
         activity: Activity, complete: (Boolean) -> Unit) {
         send {
-            beBuildP2PConnection(activity, complete)
+            beEnableP2PService(activity, complete)
+        }
+    }
+    fun toBeLeaveGroup() {
+        send {
+            beLeaveGroup()
         }
     }
 
