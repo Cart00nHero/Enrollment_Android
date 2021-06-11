@@ -1,9 +1,13 @@
 package com.cartoonhero.source.enrollment_android.scene.qrCode
 
 import android.app.Activity
+import android.app.PendingIntent
 import android.content.Intent
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.os.Bundle
 import android.provider.MediaStore
+import android.telephony.SmsManager
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -17,24 +21,28 @@ import kotlinx.coroutines.ObsoleteCoroutinesApi
 
 @ObsoleteCoroutinesApi
 @ExperimentalCoroutinesApi
-class QRCodeFragment:Fragment() {
+class QRCodeFragment : Fragment() {
     private val scenario = QRCodeScenario()
-    private var scanBtnTitle = ""
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?): View? {
         super.onCreateView(inflater, container, savedInstanceState)
-        return inflater.inflate(R.layout.fragment_qrcode,
-            container,false)
+        return inflater.inflate(
+            R.layout.fragment_qrcode,
+            container, false
+        )
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        scenario.toBeSubscribeSMS { phone, message ->
+            sendSMS(phone,message)
+        }
         scenario.toBeCollectBitmap {
             qrcode_imageView.setImageBitmap(it)
         }
-        when(Singleton.instance.currentRole) {
+        when (Singleton.instance.currentRole) {
             "Visitor" -> {
                 scan_button.visibility = View.GONE
             }
@@ -45,13 +53,27 @@ class QRCodeFragment:Fragment() {
             }
         }
     }
+
     /* --------------------------------------------------------------------- */
     // MARK: - Private
     private fun openPhotoGallery() {
-        val intent = Intent(Intent.ACTION_PICK,
-            MediaStore.Images.Media.INTERNAL_CONTENT_URI)
+        val intent = Intent(
+            Intent.ACTION_PICK,
+            MediaStore.Images.Media.INTERNAL_CONTENT_URI
+        )
         resultLauncher.launch(intent)
     }
+
+    /* --------------------------------------------------------------------- */
+    // MARK: - Portal Gate
+    private fun sendSMS(phoneNumber: String, message: String) {
+        val sentPI: PendingIntent =
+            PendingIntent.getBroadcast(
+                context, 0, Intent("SMS_SENT"), 0)
+        SmsManager.getDefault().sendTextMessage(
+            phoneNumber, null, message, sentPI, null)
+    }
+
     /* --------------------------------------------------------------------- */
     // MARK: - Listeners
     private val resultLauncher = registerForActivityResult(
@@ -60,12 +82,9 @@ class QRCodeFragment:Fragment() {
             // There are no request codes
             val data: Intent? = result.data
             qrcode_imageView.setImageURI(data?.data)
-            /*
-            val bitmap: Bitmap = BitmapFactory.decodeStream(data?.data?.let {
-                context?.contentResolver?.openInputStream(
-                    it
-                )
-            })*/
+            data?.data?.let { imgPath ->
+                context?.let { scenario.toBePrePareQRCodeMessage(it,imgPath) }
+            }
         }
     }
 

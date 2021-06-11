@@ -19,6 +19,7 @@ import com.cartoonhero.source.props.localized
 import com.cartoonhero.source.redux.ReduxFactory
 import com.cartoonhero.source.redux.SceneState
 import com.cartoonhero.source.redux.SceneSubscriber
+import com.cartoonhero.source.redux.actions.GetQrCodeAction
 import com.cartoonhero.source.redux.actions.InputValueChangedAction
 import kotlinx.coroutines.*
 import org.rekotlin.Action
@@ -275,6 +276,12 @@ class UnitScenario : Actor() {
                             unitInfo.cloudForm = action.value
                         }
                     }
+                }
+                is GetQrCodeAction -> {
+                    val action =
+                        state.currentAction as GetQrCodeAction
+                    unitInfo.qrB64Image = action.b64Image
+                    beSaveUnitInfo(action.context)
                 }
             }
         }

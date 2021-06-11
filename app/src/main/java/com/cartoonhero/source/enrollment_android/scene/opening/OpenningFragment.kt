@@ -1,4 +1,4 @@
-package com.cartoonhero.source.enrollment_android.scene.openning
+package com.cartoonhero.source.enrollment_android.scene.opening
 
 import android.content.Context
 import android.os.Bundle
