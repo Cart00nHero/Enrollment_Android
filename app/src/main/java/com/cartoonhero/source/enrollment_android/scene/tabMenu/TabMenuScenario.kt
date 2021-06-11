@@ -3,6 +3,7 @@ package com.cartoonhero.source.enrollment_android.scene.tabMenu
 import android.content.Context
 import com.cartoonhero.source.actormodel.Actor
 import com.cartoonhero.source.enrollment_android.R
+import com.cartoonhero.source.enrollment_android.scene.formWebView.WebViewFragment
 import com.cartoonhero.source.enrollment_android.scene.qrCode.QRCodeFragment
 import com.cartoonhero.source.enrollment_android.scene.visitedUnit.UnitFragment
 import com.cartoonhero.source.enrollment_android.scene.visitor.VisitorFragment
@@ -27,7 +28,8 @@ class TabMenuScenario : Actor() {
             "Visitor" -> {
                 source.menuResId = R.menu.menu_visitor_tab
                 source.pages.addAll(
-                    listOf(VisitorFragment())
+                    listOf(
+                        VisitorFragment(), WebViewFragment(),QRCodeFragment())
                 )
             }
             "Visited_Unit" -> {

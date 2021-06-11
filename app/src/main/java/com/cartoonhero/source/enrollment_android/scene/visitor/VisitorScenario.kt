@@ -6,14 +6,17 @@ import android.content.Context
 import android.text.InputType
 import com.cartoonhero.source.actormodel.Actor
 import com.cartoonhero.source.actors.Conservator
+import com.cartoonhero.source.actors.express.Courier
+import com.cartoonhero.source.actors.wifiDirect.PeerCommunicator
 import com.cartoonhero.source.actors.wifiDirect.PeerConnector
 import com.cartoonhero.source.enrollment_android.R
 import com.cartoonhero.source.props.Singleton
 import com.cartoonhero.source.props.entities.ListEditItem
+import com.cartoonhero.source.props.entities.VisitedUnit
 import com.cartoonhero.source.props.entities.VisitorInfo
 import com.cartoonhero.source.props.inlineMethods.applyEdit
 import com.cartoonhero.source.props.inlineMethods.convertAnyToJson
-import com.cartoonhero.source.props.inlineMethods.toAny
+import com.cartoonhero.source.props.inlineMethods.toEntity
 import com.cartoonhero.source.props.localized
 import com.cartoonhero.source.redux.ReduxFactory
 import com.cartoonhero.source.redux.SceneState
@@ -27,6 +30,7 @@ import org.rekotlin.Action
 
 class VisitorScenario : Actor() {
     private lateinit var connector: PeerConnector
+    private val communicator = PeerCommunicator()
     private var visitor: VisitorInfo = VisitorInfo()
     private val redux = ReduxFactory()
     private var reduxStateEvent: ((Action) -> Unit)? = null
@@ -47,10 +51,12 @@ class VisitorScenario : Actor() {
         context: Context, complete: (List<ListEditItem>) -> Unit) {
         sourceSubscriber = complete
         val sharePrefs =
-            context.getSharedPreferences(Singleton.sharePrefsKey, Context.MODE_PRIVATE)
-        val json: String = sharePrefs.getString("visitor_info", "") ?: ""
+            context.getSharedPreferences(
+                Singleton.sharePrefsKey, Context.MODE_PRIVATE)
+        val json: String =
+            sharePrefs.getString("visitor_info", "") ?: ""
         if (json.isNotEmpty()) {
-            visitor = json.toAny<VisitorInfo>() ?: VisitorInfo()
+            visitor = json.toEntity<VisitorInfo>() ?: VisitorInfo()
         }
         convertVisitorSource(context)
     }
@@ -74,9 +80,21 @@ class VisitorScenario : Actor() {
         activity: Activity, complete: (Boolean) -> Unit) {
         connector = PeerConnector(activity)
         connector.toBeSetup(this) {
+            if (it)
+                communicator.toBeRun()
             complete(it)
         }
     }
+    private fun beReadMessage() {
+        communicator.toBeReadMessage(this) { message ->
+            if (message.isNotEmpty()) {
+                val unitInfo:VisitedUnit =
+                    message.toEntity<VisitedUnit>() ?: VisitedUnit()
+//                Courier().toBeApplyExpress(this,)
+            }
+        }
+    }
+
     private fun beLeaveGroup() {
         connector.toBeRemoveGroup(this,null)
     }
@@ -89,8 +107,7 @@ class VisitorScenario : Actor() {
         val json = convertAnyToJson(visitor)
         context.getSharedPreferences(
             Singleton.sharePrefsKey,
-            Context.MODE_PRIVATE
-        ).applyEdit {
+            Context.MODE_PRIVATE).applyEdit {
             putString("visitor_info", json)
         }
         convertVisitorSource(context)

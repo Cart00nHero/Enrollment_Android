@@ -19,7 +19,7 @@ inline fun <reified T> Map<String,T>.toJson(): String {
     return jsonAdapter.toJson(this)
 }
 
-inline fun <reified T> String.toAny(): T? {
+inline fun <reified T> String.toEntity(): T? {
     val jsonAdapter =
         Moshi.Builder().add(KotlinJsonAdapterFactory()).build()
             .adapter(T::class.java)

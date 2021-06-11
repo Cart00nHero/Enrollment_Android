@@ -12,7 +12,9 @@ import kotlinx.coroutines.ObsoleteCoroutinesApi
 @ExperimentalCoroutinesApi
 @ObsoleteCoroutinesApi
 class QRCodeScanner : Actor() {
-    private fun beDecode(image: InputImage) {
+    private fun beDecode(
+        sender: Actor,image: InputImage,
+        complete:(List<Barcode>) -> Unit) {
         val options = BarcodeScannerOptions.Builder()
             .setBarcodeFormats(
                 Barcode.FORMAT_QR_CODE,
@@ -21,32 +23,18 @@ class QRCodeScanner : Actor() {
             .build()
         val scanner = BarcodeScanning.getClient(options)
         scanner.process(image).addOnSuccessListener { barcodes ->
-            for (barcode in barcodes) {
-                val bounds = barcode.boundingBox
-                val corners = barcode.cornerPoints
-                val rawValue = barcode.rawValue
-                // See API reference for complete list of supported types
-                when (barcode.valueType) {
-                    Barcode.TYPE_WIFI -> {
-                        val ssid = barcode.wifi!!.ssid
-                        val password = barcode.wifi!!.password
-                        val type = barcode.wifi!!.encryptionType
-                    }
-                    Barcode.TYPE_URL -> {
-                        val title = barcode.url!!.title
-                        val url = barcode.url!!.url
-                    }
-                    Barcode.TYPE_SMS -> {
-                    }
-                }
+            sender.send {
+                complete(barcodes)
             }
         }
     }
     /* --------------------------------------------------------------------- */
     // MARK: - Portal Gate
-    fun toBeDecode(image: InputImage) {
+    fun toBeDecode(
+        sender: Actor,image: InputImage,
+        complete:(List<Barcode>) -> Unit) {
         send {
-            beDecode(image)
+            beDecode(sender, image, complete)
         }
     }
 }

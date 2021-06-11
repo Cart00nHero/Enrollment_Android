@@ -2,8 +2,6 @@ package com.cartoonhero.source.enrollment_android.scene.qrCode
 
 import android.app.Activity
 import android.content.Intent
-import android.graphics.Bitmap
-import android.graphics.BitmapFactory
 import android.os.Bundle
 import android.provider.MediaStore
 import android.view.LayoutInflater
@@ -12,6 +10,7 @@ import android.view.ViewGroup
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.Fragment
 import com.cartoonhero.source.enrollment_android.R
+import com.cartoonhero.source.props.Singleton
 import kotlinx.android.synthetic.main.fragment_qrcode.*
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.ObsoleteCoroutinesApi
@@ -20,6 +19,7 @@ import kotlinx.coroutines.ObsoleteCoroutinesApi
 @ExperimentalCoroutinesApi
 class QRCodeFragment:Fragment() {
     private val scenario = QRCodeScenario()
+    private var scanBtnTitle = ""
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -34,8 +34,15 @@ class QRCodeFragment:Fragment() {
         scenario.toBeCollectBitmap {
             qrcode_imageView.setImageBitmap(it)
         }
-        scan_button.setOnClickListener {
-            openPhotoGallery()
+        when(Singleton.instance.currentRole) {
+            "Visitor" -> {
+                scan_button.visibility = View.GONE
+            }
+            "Visited_Unit" -> {
+                scan_button.setOnClickListener {
+                    openPhotoGallery()
+                }
+            }
         }
     }
     /* --------------------------------------------------------------------- */
@@ -52,13 +59,13 @@ class QRCodeFragment:Fragment() {
         if (result.resultCode == Activity.RESULT_OK) {
             // There are no request codes
             val data: Intent? = result.data
+            qrcode_imageView.setImageURI(data?.data)
+            /*
             val bitmap: Bitmap = BitmapFactory.decodeStream(data?.data?.let {
                 context?.contentResolver?.openInputStream(
                     it
                 )
-            })
-            scenario.toBeScanQrCodeImage(bitmap)
-            qrcode_imageView.setImageURI(data?.data)
+            })*/
         }
     }
 
