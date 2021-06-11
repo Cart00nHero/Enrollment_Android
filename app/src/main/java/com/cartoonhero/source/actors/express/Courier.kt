@@ -10,11 +10,13 @@ class Courier : Actor() {
 
     private fun <T> beApplyExpress(
             sender: Actor, recipient: String, content: T,
-            complete: (Parcel<T>) -> Unit) {
+            complete: ((Parcel<T>) -> Unit)?) {
         val senderName = sender.javaClass.name
         val parcel = Parcel(senderName, content)
-        sender.send {
-            complete(parcel)
+        if (complete != null) {
+            sender.send {
+                complete(parcel)
+            }
         }
     }
 
@@ -34,7 +36,7 @@ class Courier : Actor() {
     // MARK: - Portal Gate
     fun <T> toBeApplyExpress(
             sender: Actor, recipient: String, content: T,
-            complete: (Parcel<T>) -> Unit) {
+            complete: ((Parcel<T>) -> Unit)?) {
         send {
             beApplyExpress(sender, recipient, content, complete)
         }

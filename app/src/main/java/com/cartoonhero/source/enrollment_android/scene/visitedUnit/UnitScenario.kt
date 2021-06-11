@@ -7,6 +7,7 @@ import android.net.wifi.p2p.WifiP2pDevice
 import android.text.InputType
 import com.cartoonhero.source.actormodel.Actor
 import com.cartoonhero.source.actors.Conservator
+import com.cartoonhero.source.actors.DataConverter
 import com.cartoonhero.source.actors.wifiDirect.PeerCommunicator
 import com.cartoonhero.source.actors.wifiDirect.PeerConnector
 import com.cartoonhero.source.enrollment_android.R
@@ -18,6 +19,7 @@ import com.cartoonhero.source.props.localized
 import com.cartoonhero.source.redux.ReduxFactory
 import com.cartoonhero.source.redux.SceneState
 import com.cartoonhero.source.redux.SceneSubscriber
+import com.cartoonhero.source.redux.actions.GetQrCodeAction
 import com.cartoonhero.source.redux.actions.InputValueChangedAction
 import kotlinx.coroutines.*
 import org.rekotlin.Action
@@ -28,7 +30,6 @@ class UnitScenario : Actor() {
 
     private var connector: PeerConnector? = null
     private val communicator = PeerCommunicator()
-//    private val peerList: HashSet<WifiP2pDevice> = hashSetOf()
     private var unitInfo = VisitedUnit()
     private var sourceSubscriber: ((List<ListEditItem>) -> Unit)? = null
     private val redux = ReduxFactory()
@@ -53,7 +54,7 @@ class UnitScenario : Actor() {
             context.getSharedPreferences(Singleton.sharePrefsKey, Context.MODE_PRIVATE)
         val json: String = sharePrefs.getString("visited_unit_info", "") ?: ""
         if (json.isNotEmpty()) {
-            unitInfo = json.toAny<VisitedUnit>() ?: VisitedUnit()
+            unitInfo = json.toEntity<VisitedUnit>() ?: VisitedUnit()
         }
         convertSource(context)
     }
@@ -93,6 +94,10 @@ class UnitScenario : Actor() {
                 if (peer.status != WifiP2pDevice.CONNECTED) {
                     connector!!.toBeConnectPeer(this,peer,null)
                 }
+            }
+            communicator.toBeRun()
+            DataConverter().toBeVisitedUnitToJson(this,unitInfo) {
+                communicator.toBeWriteMessage(it)
             }
         }
     }
@@ -271,6 +276,12 @@ class UnitScenario : Actor() {
                             unitInfo.cloudForm = action.value
                         }
                     }
+                }
+                is GetQrCodeAction -> {
+                    val action =
+                        state.currentAction as GetQrCodeAction
+                    unitInfo.qrB64Image = action.b64Image
+                    beSaveUnitInfo(action.context)
                 }
             }
         }

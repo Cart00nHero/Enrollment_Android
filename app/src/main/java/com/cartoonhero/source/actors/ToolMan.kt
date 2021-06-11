@@ -46,21 +46,6 @@ class ToolMan : Actor() {
             complete(newBitmap)
         }
     }
-    private fun beBitmapToBase64(
-        sender: Actor,bitmap: Bitmap, complete: (String) -> Unit) {
-        val base64Bitmap: String = bitmap.toBase64String()
-        sender.send {
-            complete(base64Bitmap)
-        }
-    }
-    private fun beBase64ToBitMap(
-        sender: Actor,base64Img: String,
-        complete: (Bitmap) -> Unit) {
-        val bitmap = base64Img.toBitmap()
-        sender.send {
-            bitmap?.let { complete(it) }
-        }
-    }
     /* --------------------------------------------------------------------- */
     // MARK: - Portal Gate
     fun toBeResizeBitmap(
@@ -68,19 +53,6 @@ class ToolMan : Actor() {
         complete: (Bitmap) -> Unit) {
         send {
             beResizeBitmap(sender, bitmap, targetSize, complete)
-        }
-    }
-    fun toBeBitmapToBase64(
-        sender: Actor,bitmap: Bitmap, complete: (String) -> Unit) {
-        send {
-            beBitmapToBase64(sender, bitmap, complete)
-        }
-    }
-    fun toBeBase64ToBitMap(
-        sender: Actor,base64Img: String,
-        complete: (Bitmap) -> Unit) {
-        send {
-            beBase64ToBitMap(sender, base64Img, complete)
         }
     }
 }

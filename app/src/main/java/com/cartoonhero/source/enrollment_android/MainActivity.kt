@@ -5,7 +5,7 @@ import android.view.Menu
 import android.view.MenuItem
 import com.cartoonhero.source.enrollment_android.scene.NavigationActivity
 import com.cartoonhero.source.enrollment_android.databinding.ActivityMainBinding
-import com.cartoonhero.source.enrollment_android.scene.openning.OpenningFragment
+import com.cartoonhero.source.enrollment_android.scene.opening.OpenningFragment
 import com.cartoonhero.source.props.Singleton
 
 const val OpeningScene = "OPENING_SCENE"
