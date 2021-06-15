@@ -27,7 +27,6 @@ class PeerConnector(context: Context): Actor() {
             this,mContext,
             Manifest.permission.ACCESS_FINE_LOCATION) { granted ->
             if (granted) {
-                bindP2PService()
                 serviceBoundEvent = {
                     hostService?.isPermissionGranted = granted
                     hostService?.buildConnection {
@@ -36,6 +35,7 @@ class PeerConnector(context: Context): Actor() {
                         }
                     }
                 }
+                bindP2PService()
                 return@toBeCheckPermission
             }
             sender.send {

@@ -15,13 +15,11 @@ import kotlinx.coroutines.*
 @ObsoleteCoroutinesApi
 class TabMenuScenario : Actor() {
 
-    private fun bePrepareTabSources(
-        context: Context,
-        complete: (TabMenuSource) -> Unit) {
+    private fun bePrepareTabSources(complete: (TabMenuSource) -> Unit) {
         val source = TabMenuSource()
         val tabTitles = mutableListOf(
-            localized(context, R.string.information),
-            localized(context, R.string.web),
+            localized( R.string.information),
+            localized(R.string.web),
             "QRCode"
         )
         when (Singleton.instance.currentRole) {
@@ -52,10 +50,9 @@ class TabMenuScenario : Actor() {
     /* --------------------------------------------------------------------- */
     // MARK: - Portal Gate
     fun toBePrepareTabSources(
-        context: Context,
         complete: (TabMenuSource) -> Unit) {
         send {
-            bePrepareTabSources(context, complete)
+            bePrepareTabSources(complete)
         }
     }
 }

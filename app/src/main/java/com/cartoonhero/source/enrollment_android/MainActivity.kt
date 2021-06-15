@@ -16,7 +16,6 @@ class MainActivity : NavigationActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        Singleton.instance.sContext = this
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
         setSupportActionBar(binding.toolbar)
@@ -24,6 +23,16 @@ class MainActivity : NavigationActivity() {
         if (sceneName.isNullOrEmpty()) {
             setRootFragment(OpenningFragment(),StageResId)
         }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        Singleton.instance.mainContext = this
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        Singleton.instance.mainContext = null
     }
 
 

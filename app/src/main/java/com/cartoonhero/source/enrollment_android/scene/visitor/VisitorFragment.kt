@@ -66,16 +66,16 @@ class VisitorFragment : Fragment() {
         }
         this.button_edit.setOnClickListener { btn ->
             when ((btn as Button).text) {
-                localized(requireContext(), R.string.edit) -> {
+                localized(R.string.edit) -> {
                     isEditState = true
                     concatAdapter.adapters[0].notifyDataSetChanged()
                     btn.text =
-                        localized(requireContext(), R.string.save)
+                        localized(R.string.save)
                 }
-                localized(requireContext(), R.string.save) -> {
+                localized(R.string.save) -> {
                     isEditState = false
                     context?.let { scenario.toBeSaveVisitor(it) }
-                    btn.text = localized(requireContext(), R.string.edit)
+                    btn.text = localized(R.string.edit)
                     btn.hideKeyboard()
                 }
             }
