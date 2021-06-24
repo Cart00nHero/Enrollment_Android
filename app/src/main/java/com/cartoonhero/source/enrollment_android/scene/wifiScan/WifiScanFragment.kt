@@ -9,14 +9,15 @@ import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.RecyclerView
 import com.cartoonhero.source.enrollment_android.R
 import com.cartoonhero.source.enrollment_android.scenery.WifiScanItemView
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.ObsoleteCoroutinesApi
+import com.cartoonhero.source.redux.actions.WifiConnectBtnClickAction
+import kotlinx.android.synthetic.main.fragment_wifi_scan.*
+import kotlinx.coroutines.*
 
 @ObsoleteCoroutinesApi
 @ExperimentalCoroutinesApi
 class WifiScanFragment: Fragment() {
     private val scenario = WifiScanScenario()
-    private val wifiList:MutableList<ScanResult> = mutableListOf()
+    private val wifiListSource:MutableList<ScanResult> = mutableListOf()
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -28,12 +29,25 @@ class WifiScanFragment: Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        activity?.let {act-> scenario.toBeEnableWifi(act) }
+        this.wifi_list.adapter = RecyclerAdapter()
+        activity?.let { act->
+            scenario.toBeEnableWifi(act)
+        }
     }
 
     override fun onStart() {
         super.onStart()
-        scenario.toBeSubscribeRedux()
+        scenario.toBeSubscribeRedux { action ->
+            when(action) {
+                is WifiConnectBtnClickAction -> {
+                    val position: Int = action.itemView.tag as Int
+                    CoroutineScope(Dispatchers.Main).launch {
+                        this@WifiScanFragment.wifi_list
+                            .adapter?.notifyItemChanged(position)
+                    }
+                }
+            }
+        }
     }
 
     override fun onStop() {
@@ -49,9 +63,10 @@ class WifiScanFragment: Fragment() {
             return ViewHolder(itemView)
         }
         override fun getItemCount(): Int {
-            return wifiList.size
+            return wifiListSource.size
         }
         override fun onBindViewHolder(holder: ViewHolder, position: Int) {
+            holder.itemView.tag = position
             val itemView:WifiScanItemView =
                 holder.itemView as WifiScanItemView
             itemView.initialized()
@@ -59,7 +74,7 @@ class WifiScanFragment: Fragment() {
         }
         inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
             fun bindData(itemView: WifiScanItemView, position: Int) {
-                val itemData = wifiList[position]
+                val itemData = wifiListSource[position]
                 itemView.bindScanResult(itemData)
             }
         }

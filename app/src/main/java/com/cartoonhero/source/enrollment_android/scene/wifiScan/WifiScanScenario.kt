@@ -5,6 +5,7 @@ import android.content.Intent
 import android.os.Build
 import android.provider.Settings
 import com.cartoonhero.source.actormodel.Actor
+import com.cartoonhero.source.actors.express.Courier
 import com.cartoonhero.source.actors.wifiDirect.WifiMaster
 import com.cartoonhero.source.redux.ReduxFactory
 import com.cartoonhero.source.redux.SceneState
@@ -18,6 +19,7 @@ import org.rekotlin.Action
 class WifiScanScenario : Actor() {
     private var wifiMaster: WifiMaster? = null
     private val redux = ReduxFactory()
+    private var reActionSubscriber: ((Action) -> Unit)? = null
     private fun beEnableWifi(activity: Activity) {
         wifiMaster = WifiMaster(activity)
         CoroutineScope(Dispatchers.Main).launch {
@@ -30,7 +32,8 @@ class WifiScanScenario : Actor() {
         }
     }
 
-    private fun beSubscribeRedux() {
+    private fun beSubscribeRedux(subscriber:(Action) -> Unit) {
+        reActionSubscriber = subscriber
         redux.subscribeRedux(stateSubscriber)
     }
 
@@ -46,9 +49,9 @@ class WifiScanScenario : Actor() {
         }
     }
 
-    fun toBeSubscribeRedux() {
+    fun toBeSubscribeRedux(subscriber:(Action) -> Unit) {
         send {
-            beSubscribeRedux()
+            beSubscribeRedux(subscriber)
         }
     }
 
@@ -71,6 +74,10 @@ class WifiScanScenario : Actor() {
                             this@WifiScanScenario,
                             action.ssidName,action.pass) { connected ->
                             action.itemView.wifiConnected = connected
+                            reActionSubscriber?.let { it(action) }
+                            Courier().toBeApplyExpress(
+                                this@WifiScanScenario,
+                                "VisitorScenario",action.ssidName,null)
                         }
                     }
                 }

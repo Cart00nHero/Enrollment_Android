@@ -39,8 +39,8 @@ class OpenningFragment: Fragment() {
                     listOf(RoleSelectionFragment()),StageResId)
             }
             else -> {
-                (activity as MainActivity).goForward(
-                    listOf(TabMenuFragment()),StageResId)
+                (activity as MainActivity).setRootFragment(
+                    TabMenuFragment(), StageResId)
             }
         }
     }
