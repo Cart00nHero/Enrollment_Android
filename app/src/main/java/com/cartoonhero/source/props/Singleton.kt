@@ -6,7 +6,7 @@ import android.content.Context
 const val sharedPreferencesName = "enrollment_android_sharedPreferences"
 class Singleton {
     var currentRole: String = ""
-    var sContext:Context? = null
+    var mainContext:Context? = null
     companion object {
         @SuppressLint("StaticFieldLeak")
         val instance = Singleton()
@@ -15,6 +15,6 @@ class Singleton {
     }
 }
 
-fun localized(context: Context,resId: Int): String {
-    return context.getString(resId)
+fun localized(resId: Int): String {
+    return Singleton.instance.mainContext?.getString(resId)?:""
 }

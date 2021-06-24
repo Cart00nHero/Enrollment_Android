@@ -30,8 +30,7 @@ class UnitFragment : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
+        savedInstanceState: Bundle?): View? {
         super.onCreateView(inflater, container, savedInstanceState)
         return inflater.inflate(R.layout.fragment_unit, container, false)
     }
@@ -46,16 +45,16 @@ class UnitFragment : Fragment() {
         }
         this.button_edit.setOnClickListener { btn ->
             when ((btn as Button).text) {
-                localized(requireContext(), R.string.edit) -> {
+                localized(R.string.edit) -> {
                     isEditState = true
                     this.editor_list.adapter?.notifyDataSetChanged()
                     btn.text =
-                        localized(requireContext(), R.string.save)
+                        localized(R.string.save)
                 }
-                localized(requireContext(), R.string.save) -> {
+                localized(R.string.save) -> {
                     isEditState = false
                     context?.let { scenario.toBeSaveUnitInfo(it) }
-                    btn.text = localized(requireContext(), R.string.edit)
+                    btn.text = localized(R.string.edit)
                     btn.hideKeyboard()
                 }
             }
@@ -63,7 +62,7 @@ class UnitFragment : Fragment() {
         this.button_change_role.setOnClickListener { clickView ->
             context?.let {
                 if ((clickView as Button).text !=
-                    localized(it,R.string.role_changed))
+                    localized(R.string.role_changed))
                     scenario.toBeSwitchRole(it)
             }
         }

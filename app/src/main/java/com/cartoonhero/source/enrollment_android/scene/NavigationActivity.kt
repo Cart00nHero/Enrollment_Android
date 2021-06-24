@@ -2,7 +2,6 @@ package com.cartoonhero.source.enrollment_android.scene
 
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
-import com.cartoonhero.source.props.inlineMethods.removeFragment
 import com.cartoonhero.source.props.inlineMethods.replaceFragment
 
 open class NavigationActivity : AppCompatActivity() {
@@ -12,7 +11,6 @@ open class NavigationActivity : AppCompatActivity() {
 
     fun setRootFragment(fragment: Fragment, resourceId: Int) {
         if (pageStack.size > 0) {
-            removeFragment(currentFragment())
             pageStack.clear()
             clearFragmentBackStack()
         }
@@ -28,9 +26,8 @@ open class NavigationActivity : AppCompatActivity() {
 
     fun goBack(resourceId: Int) {
         if (currentPage > 0) {
-            val currentFragment = pageStack[currentPage]
             val previousFragment = pageStack[currentPage-1]
-            pageStack.remove(currentFragment)
+            pageStack.remove(currentFragment())
             currentPage -= 1
             replaceFragment(previousFragment, resourceId)
         } else {
@@ -44,12 +41,12 @@ open class NavigationActivity : AppCompatActivity() {
         }
     }
 
-    private fun currentFragment(): Fragment{
-        return pageStack.last()
-    }
-
     fun childFragments(): List<Fragment> {
         return pageStack.toList()
+    }
+
+    private fun currentFragment(): Fragment{
+        return pageStack.last()
     }
 
     private fun clearFragmentBackStack() {

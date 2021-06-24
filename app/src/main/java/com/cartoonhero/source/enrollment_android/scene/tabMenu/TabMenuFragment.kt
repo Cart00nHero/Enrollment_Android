@@ -30,19 +30,17 @@ class TabMenuFragment:Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        context?.let {
-            scenario.toBePrepareTabSources(it) { source ->
-                tabSource = source
-                tab_bar.inflateMenu(tabSource.menuResId)
-                activity?.let { act ->
-                    if (act is AppCompatActivity)
-                        this.tab_viewPager.adapter = ViewPagerStateAdapter(act)
-                }
-                TabLayoutMediator(this.tabLayout,this.tab_viewPager) { tab,position ->
-                    val tabItem = source.tabItems[position]
-                    tab.text = tabItem.title
-                }.attach()
+        scenario.toBePrepareTabSources { source ->
+            tabSource = source
+            tab_bar.inflateMenu(tabSource.menuResId)
+            activity?.let { act ->
+                if (act is AppCompatActivity)
+                    this.tab_viewPager.adapter = ViewPagerStateAdapter(act)
             }
+            TabLayoutMediator(this.tabLayout,this.tab_viewPager) { tab,position ->
+                val tabItem = source.tabItems[position]
+                tab.text = tabItem.title
+            }.attach()
         }
     }
 

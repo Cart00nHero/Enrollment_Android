@@ -126,7 +126,7 @@ class UnitScenario : Actor() {
         if (role.isEmpty()) {
             CoroutineScope(Dispatchers.Main).launch {
                 roleSubscriber!!(
-                    localized(context, R.string.role_changed)
+                    localized(R.string.role_changed)
                 )
             }
         }
@@ -141,7 +141,7 @@ class UnitScenario : Actor() {
         if (roleSubscriber != null) {
             CoroutineScope(Dispatchers.Main).launch {
                 roleSubscriber!!(
-                    localized(context, R.string.role_changed)
+                    localized(R.string.role_changed)
                 )
             }
         }
@@ -234,22 +234,20 @@ class UnitScenario : Actor() {
     private fun convertSource(context: Context) {
         val source = listOf(
             ListEditItem(
-                title = "${localized(context, R.string.code)}:",
-                placeholder = localized(context, R.string.please_input_your_name),
+                title = "${localized(R.string.code)}:",
+                placeholder = localized(R.string.please_input_your_name),
                 keyboardType = InputType.TYPE_NUMBER_FLAG_DECIMAL,
                 content = unitInfo.code
             ),
             ListEditItem(
-                title = "${localized(context, R.string.name)}:",
-                placeholder = localized(context, R.string.please_enter_your_phone_number),
+                title = "${localized(R.string.name)}:",
+                placeholder = localized(R.string.please_enter_your_phone_number),
                 keyboardType = InputType.TYPE_TEXT_VARIATION_PERSON_NAME,
                 content = unitInfo.name
             ),
             ListEditItem(
-                title = "${localized(context, R.string.form_url)}:",
-                placeholder = localized(
-                    context, R.string.please_fill_in_what_you_want_to_prefill
-                ),
+                title = "${localized(R.string.form_url)}:",
+                placeholder = localized(R.string.please_fill_in_what_you_want_to_prefill),
                 keyboardType = InputType.TYPE_TEXT_VARIATION_URI,
                 content = unitInfo.cloudForm
             )

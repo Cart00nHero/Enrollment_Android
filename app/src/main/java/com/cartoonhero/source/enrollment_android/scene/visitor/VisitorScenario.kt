@@ -123,7 +123,7 @@ class VisitorScenario : Actor() {
         if (role.isEmpty()) {
             CoroutineScope(Dispatchers.Main).launch {
                 roleSubscriber!!(
-                    localized(context, R.string.role_changed)
+                    localized(R.string.role_changed)
                 )
             }
         }
@@ -138,7 +138,7 @@ class VisitorScenario : Actor() {
         if (roleSubscriber != null) {
             CoroutineScope(Dispatchers.Main).launch {
                 roleSubscriber!!(
-                    localized(context, R.string.role_changed)
+                    localized(R.string.role_changed)
                 )
             }
         }
@@ -220,22 +220,20 @@ class VisitorScenario : Actor() {
     private fun convertVisitorSource(context: Context) {
         val source = listOf(
             ListEditItem(
-                title = "${localized(context, R.string.name)}:",
-                placeholder = localized(context, R.string.please_input_your_name),
+                title = "${localized(R.string.name)}:",
+                placeholder = localized(R.string.please_input_your_name),
                 keyboardType = InputType.TYPE_TEXT_VARIATION_PERSON_NAME,
                 content = visitor.name
             ),
             ListEditItem(
-                title = "${localized(context, R.string.tel)}:",
-                placeholder = localized(context, R.string.please_enter_your_phone_number),
+                title = "${localized(R.string.tel)}:",
+                placeholder = localized(R.string.please_enter_your_phone_number),
                 keyboardType = InputType.TYPE_CLASS_PHONE,
                 content = visitor.tel
             ),
             ListEditItem(
-                title = "${localized(context, R.string.info)}:",
-                placeholder = localized(
-                    context, R.string.please_fill_in_what_you_want_to_prefill
-                ),
+                title = "${localized(R.string.info)}:",
+                placeholder = localized(R.string.please_fill_in_what_you_want_to_prefill),
                 keyboardType = InputType.TYPE_CLASS_TEXT,
                 content = visitor.others
             )

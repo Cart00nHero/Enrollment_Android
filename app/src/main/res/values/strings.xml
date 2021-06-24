@@ -36,4 +36,7 @@
     <string name="information">Information</string>
     <string name="web">Web</string>
     <string name="switch_role">Switch role</string>
+    <string name="connect">Connect</string>
+    <string name="please_input_passphrase">Please input passphrase</string>
+    <string name="cancel">Cancel</string>
 </resources>

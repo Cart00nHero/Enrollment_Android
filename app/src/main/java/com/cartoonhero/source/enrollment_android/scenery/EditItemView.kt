@@ -35,7 +35,7 @@ class EditItemView @JvmOverloads constructor(
     }
 
     fun disableCopyButton() {
-        this.item_copyButton.visibility = View.GONE
+        this.item_button.visibility = View.GONE
     }
     @SuppressLint("SetTextI18n")
     inline fun <reified T> bindItemData(data: T, isEditor: Boolean) {
@@ -68,7 +68,7 @@ class EditItemView @JvmOverloads constructor(
                 }
             }
         }
-        this.item_copyButton.setOnClickListener {
+        this.item_button.setOnClickListener {
             val clipboard =
                 context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
             // Creates a new text clip to put on the clipboard

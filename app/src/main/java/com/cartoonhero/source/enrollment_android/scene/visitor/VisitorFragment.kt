@@ -1,10 +1,14 @@
 package com.cartoonhero.source.enrollment_android.scene.visitor
 
+import android.content.Intent
+import android.os.Build
 import android.os.Bundle
+import android.provider.Settings
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.ConcatAdapter
 import androidx.recyclerview.widget.RecyclerView
@@ -31,8 +35,7 @@ class VisitorFragment : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
+        savedInstanceState: Bundle?): View? {
         super.onCreateView(inflater, container, savedInstanceState)
         return inflater.inflate(
             R.layout.fragment_visitor, container, false
@@ -66,32 +69,42 @@ class VisitorFragment : Fragment() {
         }
         this.button_edit.setOnClickListener { btn ->
             when ((btn as Button).text) {
-                localized(requireContext(), R.string.edit) -> {
+                localized(R.string.edit) -> {
                     isEditState = true
                     concatAdapter.adapters[0].notifyDataSetChanged()
                     btn.text =
-                        localized(requireContext(), R.string.save)
+                        localized(R.string.save)
                 }
-                localized(requireContext(), R.string.save) -> {
+                localized(R.string.save) -> {
                     isEditState = false
                     context?.let { scenario.toBeSaveVisitor(it) }
-                    btn.text = localized(requireContext(), R.string.edit)
+                    btn.text = localized(R.string.edit)
                     btn.hideKeyboard()
                 }
             }
         }
         toggleButton.setOnCheckedChangeListener { buttonView, isChecked ->
-            if (isChecked) {
-                if (!p2pEnabled) {
-                    activity?.let {
-                        scenario.toBeEnableP2PService(it) { enable ->
-                            p2pEnabled = enable
-                            buttonView.isChecked = enable
+            when (isChecked) {
+                true -> {
+                    activity?.let { act ->
+                        val panelIntent =
+                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                                Intent(Settings.Panel.ACTION_INTERNET_CONNECTIVITY)
+                            } else {
+                                TODO("VERSION.SDK_INT < Q")
+                            }
+                        resultLauncher.launch(panelIntent)
+                        if (!p2pEnabled) {
+                            scenario.toBeEnableP2PService(act) { enable ->
+                                p2pEnabled = enable
+                                buttonView.isChecked = enable
+                            }
                         }
                     }
                 }
-            } else {
-                scenario.toBeLeaveGroup()
+                else -> {
+                    scenario.toBeLeaveGroup()
+                }
             }
         }
         button_change_role.setOnClickListener { clickedView ->
@@ -117,6 +130,16 @@ class VisitorFragment : Fragment() {
         super.onDestroy()
     }
 
+    /* --------------------------------------------------------------------- */
+    // MARK: - Interface
+    private val resultLauncher = registerForActivityResult(
+        ActivityResultContracts.StartActivityForResult()
+    ) {
+
+    }
+
+    /* --------------------------------------------------------------------- */
+    // MARK: - Adapter
     private inner class RecyclerAdapter : RecyclerView.Adapter<RecyclerAdapter.ViewHolder>() {
         override fun onCreateViewHolder(
             parent: ViewGroup, viewType: Int
